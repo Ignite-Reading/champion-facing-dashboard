@@ -121,11 +121,11 @@ The months-of-progress figure uses a proxy formula until a real definition lands
 - School: total students, per-grade student counts
 - Grade: student count with grade plural label
 
-**Summary metric cards** — 3-column grid. Background secondary, rounded corners. 12px label, 22px value, 12px subtitle. Content varies by view.
+**Summary metric cards** — 3-column grid. Background secondary, rounded corners. 12px label, 22px value, 12px subtitle. Content varies by view, but the first card on every view is "Avg months of growth" with the value computed via the months-of-progress proxy formula and the value marked as a placeholder (dotted underline).
 
 **School/grade cards** — white background, 0.5px tertiary border, 12px border radius. Clickable with hover state (border darkens). Header has name + student count on left, chevron-right icon on right.
 
-**Metric summary bars** (on cards) — 2-column grid layout. Each metric shows: 12px label, 8px tall bar with status-colored fill from average BOY to average current position, a 10px white start dot with a 2px status-colored stroke at the average BOY position, a 2px tall benchmark tick mark at the target position, value/target text, and two stats lines (average growth, % projected to meet target).
+**Metric summary bars** (on cards) — 2-column grid layout. Each metric shows: 12px label, 8px tall bar with status-colored fill from average BOY to average current position, a 10px white start dot with a 2px status-colored stroke at the average BOY position, a 2px tall benchmark tick mark at the target position, a start → current → target value triplet (BOY in tertiary, current in primary weight 500, target in tertiary, light arrow separators), and two stats lines (average growth, % projected to meet target).
 
 **Student table** (grade view only) — fixed table layout. Sortable columns with arrow indicators. Columns:
 - Student (name, weight 500, truncates with ellipsis)

@@ -69,6 +69,7 @@ body{font-family:var(--font-sans);margin:0;padding:2rem;color:var(--color-text-p
 .mm-bench{position:absolute;top:-2px;height:12px;width:2px;border-radius:1px;background:var(--color-text-secondary)}
 .mm-val{font-size:13px;font-weight:500;white-space:nowrap;min-width:50px;text-align:right}
 .mm-val .t{color:var(--color-text-tertiary);font-weight:400}
+.mm-val .arr{color:var(--color-text-tertiary);font-weight:400;margin:0 4px}
 .mm-stats{display:flex;flex-direction:column;gap:2px}
 .mm-stat{font-size:12px;color:var(--color-text-secondary)}
 .mm-stat b{font-weight:500}
@@ -252,6 +253,22 @@ r.growths[mk]=arr.length?Math.round(arr.reduce(function(a,b){return a+b},0)/arr.
 return r;
 }
 
+// Avg months of growth across a scope of {student, gk} items, using all key metrics with targets.
+function avgMopFor(scope){
+var mops=[];
+scope.forEach(function(it){
+var g=GM[it.gk];
+Object.keys(g.metrics).forEach(function(mk){
+var m=g.metrics[mk];if(!m.key||m.t==null)return;
+var d=it.student[mk];if(!d)return;
+var cur=m.cap!=null?Math.min(d.c,m.cap):d.c;
+var mop=mopStudent(d.b,cur,m.t,MT);
+if(mop!=null)mops.push(mop);
+});
+});
+return mops.length?Math.round(mops.reduce(function(a,b){return a+b},0)/mops.length):0;
+}
+
 function calloutHtml(personalHtml){
 var bench='<span class="placeholder" title="Placeholder pending real data">'+BENCH_PCT+'%</span> of Ignite students start significantly behind grade level, making just <span class="placeholder" title="Placeholder pending real data">'+BENCH_MONTHS+' months</span> of progress per school year on average.';
 return '<div class="callout"><div class="callout-bench">'+bench+'</div>'+(personalHtml?'<div class="callout-pers">'+personalHtml+'</div>':'')+'<div class="callout-note">Dotted figures are placeholders pending real data sources.</div></div>';
@@ -309,7 +326,9 @@ var dScope=[];SCHOOLS.forEach(function(sch){['g1','g2'].forEach(function(gk){sch
 var dCs=calloutFor(dScope,['wcpm','hfw']);
 var dPers=dScope.length?'Your 1st and 2nd graders have made <span class="placeholder" title="Proxy formula pending finalization">'+dCs.avgMonths+' months</span> of progress so far this year, reading <b>'+dCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
 h+=calloutHtml(dPers);
-h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Total students</div><div class="mc-v">'+total+'</div><div class="mc-s">across '+SCHOOLS.length+' schools</div></div>';
+var dAllScope=[];SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){sch.students[gk].forEach(function(s){dAllScope.push({student:s,gk:gk})})})});
+var dAvgMop=avgMopFor(dAllScope);
+h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v"><span class="placeholder" title="Proxy formula pending finalization">'+dAvgMop+'</span></div><div class="mc-s">across '+total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Projected to meet target</div><div class="mc-v">'+pct+'%</div><div class="mc-s">'+allPm+' of '+total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Open seats</div><div class="mc-v">'+totalSeats+'</div><div class="mc-s">across '+SCHOOLS.filter(function(s){return s.seats>0}).length+' school'+(SCHOOLS.filter(function(s){return s.seats>0}).length!==1?'s':'')+'</div></div></div>';
 
@@ -325,7 +344,7 @@ var avgProj=proj(Math.round(s.avg*(MO/MT)),s.avg,m.cap);var col=sc(avgProj>=m.t?
 h+='<div class="mm"><div class="mm-name">'+gn+' average '+DMET_LABEL[gk]+'</div><div class="mm-bar-wrap"><div class="mm-bar-bg"><div class="mm-bar-fill" style="left:'+avgBoyPct+'%;width:'+(avgPct-avgBoyPct)+'%;background:'+col+'"></div>';
 h+='<div class="mm-bs" style="left:'+avgBoyPct+'%;border-color:'+col+'"></div>';
 var tPct=Math.round(m.t/m.mx*100);h+='<div class="mm-bench" style="left:'+tPct+'%"></div>';
-h+='</div><div class="mm-val">'+s.avg+'<span class="t"> / '+m.t+'</span></div></div><div class="mm-stats">';
+h+='</div><div class="mm-val"><span class="t">'+avgBoy+'</span><span class="arr">&rarr;</span>'+s.avg+'<span class="arr">&rarr;</span><span class="t">'+m.t+'</span></div></div><div class="mm-stats">';
 h+='<div class="mm-stat"><b>+'+s.avgGr+'</b> average growth</div>';
 h+='<div class="mm-stat"><b>'+s.projPct+'%</b> projected to meet target</div>';
 h+='</div></div>';
@@ -347,7 +366,9 @@ var schScope=[];['g1','g2'].forEach(function(gk){sch.students[gk].forEach(functi
 var schCs=calloutFor(schScope,['wcpm','hfw']);
 var schPers=schScope.length?'Your 1st and 2nd graders have made <span class="placeholder" title="Proxy formula pending finalization">'+schCs.avgMonths+' months</span> of progress so far this year, reading <b>'+schCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
 h+=calloutHtml(schPers);
-h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Total students</div><div class="mc-v">'+ss.total+'</div><div class="mc-s">across '+sg.length+' grade level'+(sg.length!==1?'s':'')+'</div></div>';
+var schAllScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schAllScope.push({student:s,gk:gk})})});
+var schAvgMop=avgMopFor(schAllScope);
+h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v"><span class="placeholder" title="Proxy formula pending finalization">'+schAvgMop+'</span></div><div class="mc-s">across '+ss.total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Projected to meet target</div><div class="mc-v">'+ss.projPct+'%</div><div class="mc-s">'+ss.projMet+' of '+ss.total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Open seats</div><div class="mc-v">'+sch.seats+'</div><div class="mc-s">'+(sch.seats===0?'all seats filled':sch.seats+' available')+'</div></div></div>';
 
@@ -358,7 +379,7 @@ keys.forEach(function(mk){
 var m=g.metrics[mk];var s=gradeStats(si,gk,mk);
 var avgPct=Math.min(100,Math.round(s.avg/m.mx*100));var tPct=Math.round(m.t/m.mx*100);var avgP=proj(Math.round(s.avg*(MO/MT)),s.avg,m.cap);var col=sc(avgP>=m.t?'on-track':'below');
 var avgBoy=s.avg-s.avgGr;var avgBoyPct=Math.max(0,Math.min(100,Math.round(avgBoy/m.mx*100)));
-h+='<div class="mm"><div class="mm-name">Average '+m.n.toLowerCase()+'</div><div class="mm-bar-wrap"><div class="mm-bar-bg"><div class="mm-bar-fill" style="left:'+avgBoyPct+'%;width:'+(avgPct-avgBoyPct)+'%;background:'+col+'"></div><div class="mm-bs" style="left:'+avgBoyPct+'%;border-color:'+col+'"></div><div class="mm-bench" style="left:'+tPct+'%"></div></div><div class="mm-val">'+s.avg+'<span class="t"> / '+m.t+'</span></div></div><div class="mm-stats"><div class="mm-stat"><b>+'+s.avgGr+'</b> average growth</div><div class="mm-stat"><b>'+s.projPct+'%</b> projected to meet target</div></div></div>';
+h+='<div class="mm"><div class="mm-name">Average '+m.n.toLowerCase()+'</div><div class="mm-bar-wrap"><div class="mm-bar-bg"><div class="mm-bar-fill" style="left:'+avgBoyPct+'%;width:'+(avgPct-avgBoyPct)+'%;background:'+col+'"></div><div class="mm-bs" style="left:'+avgBoyPct+'%;border-color:'+col+'"></div><div class="mm-bench" style="left:'+tPct+'%"></div></div><div class="mm-val"><span class="t">'+avgBoy+'</span><span class="arr">&rarr;</span>'+s.avg+'<span class="arr">&rarr;</span><span class="t">'+m.t+'</span></div></div><div class="mm-stats"><div class="mm-stat"><b>+'+s.avgGr+'</b> average growth</div><div class="mm-stat"><b>'+s.projPct+'%</b> projected to meet target</div></div></div>';
 });
 h+='</div></div>';
 });
@@ -385,7 +406,8 @@ if(gScope.length===0){gPers='';}
 else if(gk==='k'){gPers='Your kindergartners have made <span class="placeholder" title="Proxy formula pending finalization">'+gCs.avgMonths+' months</span> of progress so far this year, learning <b>'+gCs.growths.pa+' more</b> letter sounds and recognizing <b>'+gCs.growths.lnf+' more</b> letters per minute on average.';}
 else{var gname=gk==='g1'?'1st':'2nd';gPers='Your '+gname+' graders have made <span class="placeholder" title="Proxy formula pending finalization">'+gCs.avgMonths+' months</span> of progress so far this year, reading <b>'+gCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
 h+=calloutHtml(gPers);
-h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Class average</div><div class="mc-v">'+avg+(hasTarget?'<span style="font-size:13px;font-weight:400;color:var(--color-text-tertiary)">/'+m.b+'</span>':'')+'</div><div class="mc-s">'+m.u+(hasTarget?' vs. target':'')+'</div></div>';
+var gAvgMop=avgMopFor(gScope);
+h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v"><span class="placeholder" title="Proxy formula pending finalization">'+gAvgMop+'</span></div><div class="mc-s">across '+data.length+' '+g.plural.toLowerCase()+'</div></div>';
 h+='<div class="mc"><div class="mc-l">Average growth (BOY to now)</div><div class="mc-v">+'+avgGr+'</div><div class="mc-s">'+m.u+'</div></div>';
 if(hasTarget){h+='<div class="mc"><div class="mc-l">Projected to meet target</div><div class="mc-v">'+projPct+'%</div><div class="mc-s">'+projMet+' of '+data.length+' students</div></div>'}
 else{h+='<div class="mc"><div class="mc-l">Students with growth</div><div class="mc-v">'+data.filter(function(d){return d.growth>0}).length+'</div><div class="mc-s">of '+data.length+' students</div></div>'}
