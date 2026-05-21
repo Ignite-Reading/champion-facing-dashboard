@@ -125,7 +125,7 @@ The months-of-progress figure uses a proxy formula until a real definition lands
 
 **School/grade cards** — white background, 0.5px tertiary border, 12px border radius. Clickable with hover state (border darkens). Header has name + student count on left, chevron-right icon on right.
 
-**Metric summary bars** (on cards) — 2-column grid layout. Each metric shows: 12px label, 8px tall bar with status-colored fill from average BOY to average current position, a 10px white start dot with a 2px status-colored stroke at the average BOY position, a 2px tall benchmark tick mark at the target position, a start → current → target value triplet (BOY in tertiary, current in primary weight 500, target in tertiary, light arrow separators), and two stats lines (average growth, % projected to meet target).
+**Metric summary bars** (on cards) — 2-column grid layout. Each metric shows: 12px label, 8px tall bar with status-colored fill from average BOY to average current position, a 10px white start dot with a 2px status-colored stroke at the average BOY position, a 2px tall benchmark tick mark at the target position, a start → current → target value triplet (BOY in tertiary, current in primary weight 500, target in tertiary, light arrow separators), and a single stats line below the bar with average growth and % projected to meet target separated by a dot.
 
 **Student table** (grade view only) — fixed table layout. Sortable columns with arrow indicators. Columns:
 - Student (name, weight 500, truncates with ellipsis)
