@@ -107,8 +107,7 @@ tr:last-child td{border-bottom:none}
 .callout{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1.25rem 1.5rem;margin-bottom:1.5rem;line-height:1.5}
 .callout-bench{font-size:13px;color:var(--color-text-secondary);margin-bottom:12px}
 .callout-pers{font-size:18px;color:var(--color-text-primary);font-weight:400}
-.callout-pers b{font-weight:500}
-.callout-note{font-size:11px;color:var(--color-text-tertiary);margin-top:14px;font-style:italic}
+.callout b{font-weight:500}
 .placeholder{text-decoration:underline dotted;text-decoration-color:var(--color-text-tertiary);text-underline-offset:3px;cursor:help}
 .gv{font-size:13px;font-weight:500}
 .pos{color:#639922}.neg{color:#E24B4A}
@@ -273,11 +272,11 @@ return mops.length?Math.round(mops.reduce(function(a,b){return a+b},0)/mops.leng
 function calloutHtml(personalHtml,includeBench){
 var html='<div class="callout">';
 if(includeBench){
-var bench='<span class="placeholder" title="Placeholder pending real data">'+BENCH_PCT+'%</span> of Ignite students start significantly behind grade level, making just <span class="placeholder" title="Placeholder pending real data">'+BENCH_MONTHS+' months</span> of progress per school year on average.';
+var bench='<b>'+BENCH_PCT+'%</b> of Ignite students start significantly behind grade level, making just <b>'+BENCH_MONTHS+' months</b> of progress per school year on average.';
 html+='<div class="callout-bench">'+bench+'</div>';
 }
 if(personalHtml)html+='<div class="callout-pers">'+personalHtml+'</div>';
-html+='<div class="callout-note">Dotted figures are placeholders pending real data sources.</div></div>';
+html+='</div>';
 return html;
 }
 
@@ -331,11 +330,11 @@ GKS.forEach(function(gk){if(gTotals[gk]>0)h+='<span>'+gTotals[gk]+' '+GM[gk].plu
 h+='</div>';
 var dScope=[];SCHOOLS.forEach(function(sch){['g1','g2'].forEach(function(gk){sch.students[gk].forEach(function(s){dScope.push({student:s,gk:gk})})})});
 var dCs=calloutFor(dScope,['wcpm','hfw']);
-var dPers=dScope.length?'Your 1st and 2nd graders have made <span class="placeholder" title="Proxy formula pending finalization">'+dCs.avgMonths+' months</span> of progress so far this year, reading <b>'+dCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
+var dPers=dScope.length?'Your 1st and 2nd graders have made <b>'+dCs.avgMonths+' months</b> of progress so far this year, reading <b>'+dCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
 h+=calloutHtml(dPers,true);
 var dAllScope=[];SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){sch.students[gk].forEach(function(s){dAllScope.push({student:s,gk:gk})})})});
 var dAvgMop=avgMopFor(dAllScope);
-h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v"><span class="placeholder" title="Proxy formula pending finalization">'+dAvgMop+'</span></div><div class="mc-s">across '+total+' students</div></div>';
+h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v">'+dAvgMop+'</div><div class="mc-s">across '+total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Projected to meet target</div><div class="mc-v">'+pct+'%</div><div class="mc-s">'+allPm+' of '+total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Open seats</div><div class="mc-v">'+totalSeats+'</div><div class="mc-s">across '+SCHOOLS.filter(function(s){return s.seats>0}).length+' school'+(SCHOOLS.filter(function(s){return s.seats>0}).length!==1?'s':'')+'</div></div></div>';
 
@@ -371,11 +370,11 @@ sg.forEach(function(gk){h+='<span>'+sch.students[gk].length+' '+GM[gk].plural+'<
 h+='</div>';
 var schScope=[];['g1','g2'].forEach(function(gk){sch.students[gk].forEach(function(s){schScope.push({student:s,gk:gk})})});
 var schCs=calloutFor(schScope,['wcpm','hfw']);
-var schPers=schScope.length?'Your 1st and 2nd graders have made <span class="placeholder" title="Proxy formula pending finalization">'+schCs.avgMonths+' months</span> of progress so far this year, reading <b>'+schCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
+var schPers=schScope.length?'Your 1st and 2nd graders have made <b>'+schCs.avgMonths+' months</b> of progress so far this year, reading <b>'+schCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
 h+=calloutHtml(schPers,false);
 var schAllScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schAllScope.push({student:s,gk:gk})})});
 var schAvgMop=avgMopFor(schAllScope);
-h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v"><span class="placeholder" title="Proxy formula pending finalization">'+schAvgMop+'</span></div><div class="mc-s">across '+ss.total+' students</div></div>';
+h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v">'+schAvgMop+'</div><div class="mc-s">across '+ss.total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Projected to meet target</div><div class="mc-v">'+ss.projPct+'%</div><div class="mc-s">'+ss.projMet+' of '+ss.total+' students</div></div>';
 h+='<div class="mc"><div class="mc-l">Open seats</div><div class="mc-v">'+sch.seats+'</div><div class="mc-s">'+(sch.seats===0?'all seats filled':sch.seats+' available')+'</div></div></div>';
 
@@ -410,11 +409,11 @@ var gMetricKeys=gk==='k'?['pa','lnf']:['wcpm','hfw'];
 var gCs=calloutFor(gScope,gMetricKeys);
 var gPers;
 if(gScope.length===0){gPers='';}
-else if(gk==='k'){gPers='Your kindergartners have made <span class="placeholder" title="Proxy formula pending finalization">'+gCs.avgMonths+' months</span> of progress so far this year, learning <b>'+gCs.growths.pa+' more</b> letter sounds and recognizing <b>'+gCs.growths.lnf+' more</b> letters per minute on average.';}
-else{var gname=gk==='g1'?'1st':'2nd';gPers='Your '+gname+' graders have made <span class="placeholder" title="Proxy formula pending finalization">'+gCs.avgMonths+' months</span> of progress so far this year, reading <b>'+gCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
+else if(gk==='k'){gPers='Your kindergartners have made <b>'+gCs.avgMonths+' months</b> of progress so far this year, learning <b>'+gCs.growths.pa+' more</b> letter sounds and recognizing <b>'+gCs.growths.lnf+' more</b> letters per minute on average.';}
+else{var gname=gk==='g1'?'1st':'2nd';gPers='Your '+gname+' graders have made <b>'+gCs.avgMonths+' months</b> of progress so far this year, reading <b>'+gCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
 h+=calloutHtml(gPers,false);
 var gAvgMop=avgMopFor(gScope);
-h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v"><span class="placeholder" title="Proxy formula pending finalization">'+gAvgMop+'</span></div><div class="mc-s">across '+data.length+' '+g.plural.toLowerCase()+'</div></div>';
+h+='<div class="metrics-row"><div class="mc"><div class="mc-l">Avg months of growth</div><div class="mc-v">'+gAvgMop+'</div><div class="mc-s">across '+data.length+' '+g.plural.toLowerCase()+'</div></div>';
 h+='<div class="mc"><div class="mc-l">Average growth (BOY to now)</div><div class="mc-v">+'+avgGr+'</div><div class="mc-s">'+m.u+'</div></div>';
 if(hasTarget){h+='<div class="mc"><div class="mc-l">Projected to meet target</div><div class="mc-v">'+projPct+'%</div><div class="mc-s">'+projMet+' of '+data.length+' students</div></div>'}
 else{h+='<div class="mc"><div class="mc-l">Students with growth</div><div class="mc-v">'+data.filter(function(d){return d.growth>0}).length+'</div><div class="mc-s">of '+data.length+' students</div></div>'}

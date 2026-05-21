@@ -107,7 +107,7 @@ System font stack. Two weights: 400 (regular) and 500 (medium, used for headings
 
 ### Components
 
-**Growth statement callout** — sits between the sub-counts bar and the metric cards on every view. Sits in a secondary-background block with generous padding. The personalized sentence is rendered at 18px in primary text so the headline stat reads as a hero. The national benchmark sentence (13px secondary text) appears **only on the district view**; the school and grade views drop it because the audience there is already inside their own scope. Placeholder figures (the national benchmark numbers and the months-of-progress value) are marked with a dotted underline, and a small footer note inside the callout explains the convention. The personalized sentence adapts to the scope:
+**Growth statement callout** — sits between the sub-counts bar and the metric cards on every view. Sits in a secondary-background block with generous padding. The personalized sentence is rendered at 18px in primary text so the headline stat reads as a hero. The national benchmark sentence (13px secondary text) appears **only on the district view**; the school and grade views drop it because the audience there is already inside their own scope. Key figures in both sentences are bolded (weight 500). The personalized sentence adapts to the scope:
 - District and school views: aggregated across 1st and 2nd graders only, citing words correct per minute and high-frequency words.
 - Grade view (K): scoped to kindergartners, citing phonological awareness (letter sounds) and letter naming fluency.
 - Grade view (1st / 2nd): scoped to that grade, same metrics as the district sentence.
@@ -121,7 +121,7 @@ The months-of-progress figure uses a proxy formula until a real definition lands
 - School: total students, per-grade student counts
 - Grade: student count with grade plural label
 
-**Summary metric cards** — 3-column grid. Background secondary, rounded corners. 12px label, 22px value, 12px subtitle. Content varies by view, but the first card on every view is "Avg months of growth" with the value computed via the months-of-progress proxy formula and the value marked as a placeholder (dotted underline).
+**Summary metric cards** — 3-column grid. Background secondary, rounded corners. 12px label, 22px value, 12px subtitle. Content varies by view, but the first card on every view is "Avg months of growth" with the value computed via the months-of-progress proxy formula.
 
 **School/grade cards** — white background, 0.5px tertiary border, 12px border radius. Clickable with hover state (border darkens). Header has name + student count on left, chevron-right icon on right.
 
