@@ -65,7 +65,7 @@ body{font-family:var(--font-sans);margin:0;padding:2rem;color:var(--color-text-p
 .mm-bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .mm-bar-bg{flex:1;height:8px;background:var(--color-background-secondary);border-radius:4px;position:relative;overflow:visible}
 .mm-bar-fill{position:absolute;top:0;height:100%;border-radius:4px}
-.mm-bs{position:absolute;top:-1px;width:10px;height:10px;border-radius:50%;background:#ffffff;border:2px solid var(--color-text-tertiary);transform:translateX(-50%);z-index:3}
+.mm-bs{position:absolute;top:-1px;width:10px;height:10px;border-radius:50%;background:#ffffff;border:2px solid var(--color-text-tertiary);z-index:3}
 .mm-bench{position:absolute;top:-2px;height:12px;width:2px;border-radius:1px;background:var(--color-text-secondary)}
 .mm-val{font-size:13px;font-weight:500;white-space:nowrap;min-width:50px;text-align:right}
 .mm-val .t{color:var(--color-text-tertiary);font-weight:400}
@@ -73,10 +73,12 @@ body{font-family:var(--font-sans);margin:0;padding:2rem;color:var(--color-text-p
 .mm-stat{font-size:12px;color:var(--color-text-secondary)}
 .mm-stat b{font-weight:500}
 .controls-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+.controls-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.controls-select{display:none;width:100%;font-size:13px;padding:8px 10px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md)}
 .tb{padding:6px 14px;font-size:13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
 .tb.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
 .fl{font-size:12px;color:var(--color-text-secondary);margin-left:auto}
-.controls-row select{font-size:13px;padding:5px 8px;font-family:var(--font-sans);margin-left:4px;background:var(--color-background-primary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md)}
+.tc{overflow-x:auto}
 .legend{display:flex;gap:14px;margin-bottom:1rem;font-size:12px;color:var(--color-text-secondary);flex-wrap:wrap;align-items:center}
 .legend-item{display:flex;align-items:center;gap:5px}
 .ld{width:8px;height:8px;border-radius:2px}
@@ -96,7 +98,7 @@ tr:last-child td{border-bottom:none}
 .bf{position:absolute;top:0;height:100%;border-radius:6px;z-index:2}
 .bp{position:absolute;top:0;height:100%;z-index:1;overflow:hidden}
 .bp-i{width:100%;height:100%}
-.bs{position:absolute;top:0;width:12px;height:12px;border-radius:50%;background:#ffffff;border:2px solid var(--color-text-tertiary);transform:translateX(-50%);z-index:3}
+.bs{position:absolute;top:0;width:12px;height:12px;border-radius:50%;background:#ffffff;border:2px solid var(--color-text-tertiary);z-index:3}
 .bl{position:absolute;top:-3px;height:18px;width:2px;z-index:3;border-radius:1px;background:var(--color-text-secondary)}
 .bv{text-align:right;color:var(--color-text-secondary)}
 .sv{min-width:30px;text-align:right;font-size:13px;font-weight:500;white-space:nowrap}
@@ -106,6 +108,14 @@ tr:last-child td{border-bottom:none}
 .pc{font-size:13px;white-space:nowrap}
 .ps{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .dc{font-size:13px;font-weight:500}
+@media (max-width:640px){
+  body{padding:1rem}
+  .metrics-row{grid-template-columns:1fr}
+  .controls-buttons{display:none}
+  .controls-select{display:block}
+  table{min-width:640px}
+  th:first-child,tbody td:first-child{position:sticky;left:0;background:var(--color-background-tertiary);z-index:4}
+}
 </style>
 </head>
 <body>
@@ -316,8 +326,12 @@ if(hasTarget){h+='<div class="mc"><div class="mc-l">Projected to meet target</di
 else{h+='<div class="mc"><div class="mc-l">Students with growth</div><div class="mc-v">'+data.filter(function(d){return d.growth>0}).length+'</div><div class="mc-s">of '+data.length+' students</div></div>'}
 h+='</div>';
 
-h+='<div class="controls-row">';
+h+='<div class="controls-row"><div class="controls-buttons">';
 keys.forEach(function(k){var mi=g.metrics[k];h+='<button class="tb'+(k===mk?' active':'')+'" data-mk="'+k+'" data-si="'+si+'" data-gk="'+gk+'">'+mi.n+'</button>'});
+h+='</div>';
+h+='<select class="controls-select" id="metricSelect" aria-label="Choose metric">';
+keys.forEach(function(k){var mi=g.metrics[k];h+='<option value="'+k+'"'+(k===mk?' selected':'')+'>'+mi.n+'</option>'});
+h+='</select>';
 h+='</div>';
 
 h+='<div class="legend"><div class="legend-item"><div class="ld" style="background:#639922"></div> On track</div><div class="legend-item"><div class="ld" style="background:#E24B4A"></div> Below target</div>';
@@ -326,9 +340,9 @@ h+='</div>';
 if(!m.key)h+='<div style="font-size:12px;color:var(--color-text-tertiary);margin-bottom:1rem;font-style:italic">Emerging measure for '+g.name+'. No formal EOY target.</div>';
 
 var cN=hasTarget?'13%':'17%',cT=hasTarget?'11%':'13%',cS='8%',cC=hasTarget?'26%':'32%',cG='10%',cP='14%',cD='14%';
-h+='<table><thead><tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cC+'" data-sort="current">Current <span class="sa">&#9650;</span></th><th style="width:'+cG+'" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
+h+='<div class="tc"><table><thead><tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cC+'" data-sort="current">Current <span class="sa">&#9650;</span></th><th style="width:'+cG+'" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
 if(hasTarget)h+='<th style="width:'+cP+'" data-sort="projected">Projected EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+'" data-sort="delta">vs. EOY target <span class="sa">&#9650;</span></th>';
-h+='</tr></thead><tbody id="tb"></tbody></table>';
+h+='</tr></thead><tbody id="tb"></tbody></table></div>';
 app.innerHTML=h;
 bindGradeEvents(si,gk);
 renderRows(si,gk)}
@@ -363,6 +377,8 @@ document.querySelectorAll('th').forEach(function(th){th.classList.toggle('sorted
 
 function bindGradeEvents(si,gk){
 document.querySelectorAll('.tb').forEach(function(btn){btn.addEventListener('click',function(){st.gm[si][gk]=btn.dataset.mk;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)})});
+var sel=document.getElementById('metricSelect');
+if(sel)sel.addEventListener('change',function(){st.gm[si][gk]=sel.value;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)});
 document.querySelectorAll('th[data-sort]').forEach(function(th){th.addEventListener('click',function(){var col=th.dataset.sort;if(st.sort===col)st.asc=!st.asc;else{st.sort=col;st.asc=true}renderRows(si,gk)})})}
 
 window.navTo=function(view,si,gk){
