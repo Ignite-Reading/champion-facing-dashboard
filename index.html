@@ -1384,11 +1384,15 @@ function renderRows(si,gk){
 }
 
 function bindGradeEvents(si,gk){
+  // Metric pill / dropdown re-renders go through render() (not renderGrade
+  // directly) so applyStickyOffsets() runs afterward and re-applies the
+  // negative margin that overlaps the sticky-thead onto the real thead.
+  // Without this, switching metrics produces two visible header rows.
   document.querySelectorAll('.tb').forEach(function(btn){
-    btn.addEventListener('click',function(){st.gm[si][gk]=btn.dataset.mk;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)});
+    btn.addEventListener('click',function(){st.gm[si][gk]=btn.dataset.mk;st.sort='name';st.asc=true;st.filter='all';render()});
   });
   var sel=document.getElementById('metricSelect');
-  if(sel)sel.addEventListener('change',function(){st.gm[si][gk]=sel.value;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)});
+  if(sel)sel.addEventListener('change',function(){st.gm[si][gk]=sel.value;st.sort='name';st.asc=true;st.filter='all';render()});
   // Sort click handlers fire on both real and sticky thead cells (selector
   // matches both). Whichever is on top intercepts the click; both update
   // their sort arrows via the renderRows() loop over all <th>s.
