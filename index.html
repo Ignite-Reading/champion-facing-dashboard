@@ -1257,7 +1257,7 @@ function renderDistrict(){
       var n=sch.students[gk].length;
       if(n>0){
         var label=gk==='k'?'K':(gk==='g1'?'1st':'2nd');
-        countParts.push(label+': <strong>'+n+'</strong>');
+        countParts.push('<strong>'+n+'</strong> '+label);
       }
     });
     var countStr=countParts.join(' · ');
