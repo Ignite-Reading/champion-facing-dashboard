@@ -673,6 +673,40 @@ tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: var(--bg-hover); }
 .sn { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tn { color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ========= STICKY STUDENT COLUMN =========
+   The table has min-width: 1000px inside an overflow-x:auto wrapper, so it
+   scrolls horizontally on most viewports. Pin the Student column to the
+   left so the name stays visible while the rest of the row scrolls. Cells
+   need an opaque background so the columns scrolling under them don't show
+   through. Hover state cascades to the sticky cell too. */
+thead th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--bg-sunken);
+  z-index: 2;
+}
+tbody td.sn,
+tbody td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--bg-surface);
+  z-index: 1;
+}
+tbody tr:hover td:first-child,
+tbody tr:hover td.sn {
+  background: var(--bg-hover);
+}
+/* Mirror on the sticky-fake-thead so the column header pins too — the
+   translateX scroll-sync on .sticky-thead-scroll can move this cell with
+   the rest, but at scrollLeft=0 (vertical-scroll-only, the common case)
+   the header label stays visible above the sticky body column. */
+.sticky-thead-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--bg-sunken);
+  z-index: 2;
+}
 .bv { text-align: right; color: var(--text-secondary); }
 .cv { text-align: right; font-weight: 600; }
 
