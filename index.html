@@ -3,620 +3,1468 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>District Reading Progress Dashboard</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<title>Partner Progress Report — Riverside Unified School District</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ========= RESET ========= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100vh; }
+
+/* ========= IRDL TOKENS (light) ========= */
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f5f4f0;
-  --color-background-tertiary: #fafaf8;
-  --color-background-info: #E6F1FB;
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #666663;
-  --color-text-tertiary: #999996;
-  --color-text-info: #185FA5;
-  --color-border-primary: rgba(0,0,0,0.4);
-  --color-border-secondary: rgba(0,0,0,0.3);
-  --color-border-tertiary: rgba(0,0,0,0.15);
-  --color-border-info: #85B7EB;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
+  --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Brand */
+  --brand-100: #F7F4FA;
+  --brand-300: #B49DD3;
+  --brand-500: #573988;
+  --brand-600: #462E6D;
+  --brand-800: #27004B;
+
+  /* Surfaces — IRDL Neutrals scale */
+  --bg-page: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-sunken: #f5f5f5;   /* IRDL Neutrals/surface — table headers, chart tracks, stats blocks */
+  --bg-hover: #fafafa;    /* lighter than sunken — used for row & nav hover */
+  --bg-info: #F7F4FA;
+
+  /* Text — chosen for WCAG AA contrast on both white and --bg-sunken */
+  --text-primary: #1a1a1a;
+  --text-body: #3d3c3c;
+  --text-secondary: #5e5e5e; /* IRDL Neutrals/700 — passes AA on #f5f5f5 (5.57:1) */
+  --text-tertiary: #999999;  /* DECORATIVE ONLY (icons/dividers) — fails AA as text */
+  --text-brand: #573988;
+  --text-on-brand: #ffffff;
+
+  /* Borders */
+  --border-strong: rgba(0,0,0,0.4);
+  --border: rgba(0,0,0,0.15);
+  --border-soft: #ebebeb;
+  --border-input: #c2c2c2;
+  --border-brand: #B49DD3;
+
+  /* Status — IRDL brand tokens
+     Bar fills: Green/500 + Red/500 (vivid Ignite brand)
+     Badge text: Green/700 + Red/700 (AA-legible on light bg) */
+  --ok-fg: #188161;       /* Green/700 — text */
+  --ok-bg: #e7fbf5;       /* Green/100 — badge bg */
+  --ok-bar: #28d7a3;      /* Green/500 — bar fill */
+  --ok-bar-edge: #188161; /* Green/700 — pill border / stroke */
+  --warn-fg: #bd4f00;     /* Orange/700 */
+  --warn-bg: #fff5ee;     /* Orange/100 */
+  --bad-fg: #cc3357;      /* Red/700 — text */
+  --bad-bg: #ffecf0;      /* Red/100 — badge bg */
+  --bad-bar: #ff3f6d;     /* Red/500 — bar fill */
+  --bad-bar-edge: #cc3357;/* Red/700 — pill border / stroke */
+
+  /* Radius / elevation */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-pill: 9999px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-elev: 0 2px 1px -1px rgba(43,42,42,0.2), 0 1px 1px 1px rgba(43,42,42,0.12), 0 1px 3px -3px rgba(43,42,42,0.14);
+
+  /* Layout */
+  --sidebar-w: 256px;
 }
+
+/* ========= DARK MODE TOKENS ========= */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background-primary: #2c2c2a;
-    --color-background-secondary: #363633;
-    --color-background-tertiary: #2c2c2a;
-    --color-background-info: #0C447C;
-    --color-text-primary: #f0efe8;
-    --color-text-secondary: #a8a8a3;
-    --color-text-tertiary: #7a7a76;
-    --color-text-info: #85B7EB;
-    --color-border-primary: rgba(255,255,255,0.4);
-    --color-border-secondary: rgba(255,255,255,0.3);
-    --color-border-tertiary: rgba(255,255,255,0.15);
-    --color-border-info: #378ADD;
+    --bg-page: #1a1a1a;
+    --bg-surface: #2b2a2a;  /* IRDL Neutrals/dark */
+    --bg-sunken: #363636;   /* true neutral dark, no tan tint */
+    --bg-hover: #424242;    /* lighter than sunken in dark mode too */
+    --bg-info: #2d1b48;
+
+    --text-primary: #f0efe8;
+    --text-body: #d6d4cc;
+    --text-secondary: #b8b8b3; /* slightly lighter for AA contrast on dark sunken */
+    --text-tertiary: #8a8a85;  /* decorative only in dark mode */
+    --text-brand: #C5B0E0;
+    --text-on-brand: #ffffff;
+
+    --border-strong: rgba(255,255,255,0.4);
+    --border: rgba(255,255,255,0.15);
+    --border-soft: #3a3a37;
+    --border-input: #595956;
+    --border-brand: #6E5BA8;
+
+    --ok-fg: #97ead2;       /* Green/300 — text on dark */
+    --ok-bg: #105641;       /* Green/800 — badge bg */
+    --ok-bar: #28d7a3;      /* Green/500 — bar fill */
+    --ok-bar-edge: #86e2c6; /* Green/400 — edge */
+    --warn-fg: #ffc498;
+    --warn-bg: #843802;
+    --bad-fg: #ff8ca7;      /* Red/300 — text on dark */
+    --bad-bg: #66192c;      /* Red/800 — badge bg */
+    --bad-bar: #ff3f6d;     /* Red/500 — bar fill */
+    --bad-bar-edge: #ff658a;/* Red/400 — edge */
+
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
   }
 }
-html{background:var(--color-background-tertiary)}
-body{font-family:var(--font-sans);margin:0;padding:2rem;color:var(--color-text-primary);max-width:780px;margin:0 auto}
-*{box-sizing:border-box;margin:0;padding:0}
-.dash{padding:0.5rem 0}
-.dash-footer{font-size:12px;color:var(--color-text-tertiary);text-align:center;margin-top:2rem;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary)}
-.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem}
-.mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:0.75rem 1rem}
-.mc-l{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
-.mc-v{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.mc-s{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
-.mc-trend{font-size:12px;color:#639922;margin-top:4px}
-.mc-trend .pos{font-weight:500}
-.back-btn{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--color-text-info);cursor:pointer;margin-bottom:1rem;background:none;border:none;font-family:var(--font-sans);padding:0}
-.back-btn:hover{text-decoration:underline}
-.view-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-.view-title{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:0}
-.seats{display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:2px;white-space:nowrap}
-.seats-count{font-size:13px;color:var(--color-text-secondary)}
-.seats-filled{font-size:13px;color:var(--color-text-tertiary)}
-.seats-cta{font-size:13px;padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info);cursor:pointer;font-family:var(--font-sans)}
-.seats-cta:hover{filter:brightness(0.97)}
-@media (max-width:640px){.view-head{flex-direction:column;gap:8px}}
-.sub-counts{font-size:13px;color:var(--color-text-secondary);padding:10px 0;margin-bottom:1.5rem;border-top:0.5px solid var(--color-border-tertiary);border-bottom:0.5px solid var(--color-border-tertiary);margin-top:8px}
-.sub-counts span+span::before{content:"·";margin:0 8px;color:var(--color-text-tertiary)}
-.gc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:16px;cursor:pointer;transition:border-color 0.15s}
-.gc:hover{border-color:var(--color-border-secondary)}
-.gc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.gc-name{font-size:16px;font-weight:500;color:var(--color-text-primary)}
-.gc-count{font-size:13px;color:var(--color-text-secondary);margin-left:8px}
-.gc-arrow{font-size:18px;color:var(--color-text-tertiary)}
-.gc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:40px 32px}
-@media (max-width:899px){.gc-metrics{grid-template-columns:repeat(2,1fr)}}
-.cm{padding:0;min-width:0}
-.cm-name{font-size:13px;color:var(--color-text-primary);margin-bottom:12px}
-.cm-bar-wrap{position:relative;margin-bottom:8px;padding-bottom:24px}
-.cm-bar{height:28px;background:var(--color-background-secondary);border-radius:14px;position:relative;overflow:visible}
-.cm-fill{position:absolute;top:0;height:100%;border-radius:14px 0 0 14px;z-index:2}
-.cm-proj{position:absolute;top:0;height:100%;z-index:1;overflow:hidden}
-.cm-proj-i{width:100%;height:100%}
-.cm-target{position:absolute;top:-2px;height:34px;width:2px;border-radius:1px;background:var(--color-text-secondary);z-index:3}
-.cm-pill{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:500;background:#ffffff;border:1px solid var(--color-border-tertiary);border-radius:10px;padding:2px 6px;z-index:5;white-space:nowrap;line-height:1.2;color:var(--color-text-primary)}
-.cm-target-pill{position:absolute;top:32px;transform:translateX(-50%);font-size:11px;font-weight:500;background:#ffffff;border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:2px 6px;z-index:5;white-space:nowrap;line-height:1.2;color:var(--color-text-secondary)}
-.cm-stats{text-align:center;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
-.cm-stat{display:block;line-height:1.5}
-.cm-stats b{font-weight:500}
-.controls-row{display:flex;gap:8px;margin-bottom:1.5rem;align-items:center;flex-wrap:wrap}
-.controls-buttons{display:flex;gap:8px;flex-wrap:wrap}
-.controls-select{display:none;width:100%;font-size:13px;padding:8px 10px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md)}
-.tb{padding:6px 14px;font-size:13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
-.tb.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
-.fl{font-size:12px;color:var(--color-text-secondary);margin-left:auto}
-.tc{overflow-x:auto}
-.legend{display:flex;gap:14px;margin-bottom:1.5rem;font-size:12px;color:var(--color-text-secondary);flex-wrap:wrap;align-items:center}
-.legend-item{display:flex;align-items:center;gap:5px}
-.ld{width:8px;height:8px;border-radius:2px}
-.ll{width:8px;height:2.5px;border-radius:1px}
-.ls{width:16px;height:10px;border-radius:2px;background:repeating-linear-gradient(45deg,#888780 0px,#888780 2px,transparent 2px,transparent 6px)}
-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
-th{text-align:left;padding:8px 10px;font-weight:500;font-size:12px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer;user-select:none;white-space:nowrap}
-th:hover{color:var(--color-text-primary)}
-th .sa{font-size:10px;margin-left:3px;opacity:0.4}
-th.sorted .sa{opacity:1}
-td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-.sn{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tn{color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bw{display:flex;align-items:center;gap:8px}
-.bb{width:100%;height:12px;background:var(--color-background-secondary);border-radius:6px;min-width:60px;overflow:visible;position:relative}
-.bf{position:absolute;top:0;height:100%;border-radius:6px 0 0 6px;z-index:2}
-.bp{position:absolute;top:0;height:100%;z-index:1;overflow:hidden}
-.bp-i{width:100%;height:100%}
-.bs{position:absolute;top:0;width:12px;height:12px;border-radius:50%;background:#ffffff;border:2px solid var(--color-text-tertiary);z-index:3}
-.bl{position:absolute;top:-3px;height:18px;width:2px;z-index:3;border-radius:1px;background:var(--color-text-secondary)}
-.bv{text-align:right;color:var(--color-text-secondary)}
-.cv{text-align:right;font-weight:500}
-.mastered-cell{text-align:left;color:var(--color-text-secondary);font-style:italic;padding-left:24px}
-.sv{min-width:30px;text-align:right;font-size:13px;font-weight:500;white-space:nowrap}
-.tw{margin-bottom:0.5rem}
-@media (max-width:767px){
-  td .bw{display:block;text-align:right}
-  td .bb{display:none}
-  th[data-sort="current"]{text-align:right;width:12% !important}
-  th.ch,td.ch{display:none}
+
+html { background: var(--bg-page); }
+body {
+  font-family: var(--font-sans);
+  color: var(--text-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-@media (max-width:599px){
-  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .tw table{table-layout:auto;min-width:560px;border-collapse:separate;border-spacing:0}
-  .tw th[data-sort="name"],.tw td.sn{position:sticky;left:0;background:var(--color-background-tertiary);z-index:1;border-right:0.5px solid var(--color-border-tertiary)}
-  .tw th[data-sort="name"]{z-index:2}
+
+/* ========= ACCESSIBILITY ========= */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
-.callout{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1.5rem 1.75rem;margin-bottom:1.5rem}
-.callout-pers{font-size:18px;line-height:1.7;color:var(--color-text-primary);font-weight:400}
-.callout-pers b{font-weight:700;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:2px 6px;white-space:nowrap}
-.placeholder{text-decoration:underline dotted;text-decoration-color:var(--color-text-tertiary);text-underline-offset:3px;cursor:help}
-.gv{font-size:13px;font-weight:500}
-.pos{color:#639922}.neg{color:#E24B4A}
-@media(prefers-color-scheme:dark){.pos{color:#97C459}.neg{color:#F09595}.mc-trend{color:#97C459}}
-.pc{font-size:13px;white-space:nowrap}
-.ps{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
-.dc{font-size:13px;font-weight:500}
-@media (max-width:640px){
-  body{padding:1rem}
-  .metrics-row{grid-template-columns:1fr}
-  .gc-metrics{grid-template-columns:1fr}
-  .controls-buttons{display:none}
-  .controls-select{display:block}
-  table{min-width:640px}
-  th:first-child,tbody td:first-child{position:sticky;left:0;background:var(--color-background-tertiary);z-index:4}
+.skip-link {
+  position: absolute; top: -40px; left: 0; padding: 8px 16px;
+  background: var(--brand-500); color: #fff; text-decoration: none;
+  border-radius: 0 0 var(--r-md) 0; z-index: 1000;
+}
+.skip-link:focus { top: 0; }
+*:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; border-radius: var(--r-sm); }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ========= APP SHELL ========= */
+.app { display: flex; min-height: 100vh; }
+
+/* ----- Sidebar ----- */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.sidebar-logo {
+  padding: 20px 16px 16px;
+  display: flex;
+  justify-content: center;
+}
+.sidebar-logo img { height: 36px; width: auto; }
+.sidebar-school {
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-brand);
+  border-bottom: 1px solid var(--border-brand);
+  line-height: 1.3;
+}
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-section { margin-bottom: 4px; }
+.nav-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  padding: 12px 12px 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-body);
+  text-decoration: none;
+  border-radius: var(--r-md);
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active {
+  background: var(--brand-100);
+  color: var(--brand-500);
+}
+@media (prefers-color-scheme: dark) {
+  .nav-item.active { background: var(--bg-info); color: var(--text-brand); }
+}
+.nav-item.active .nav-icon { color: var(--brand-500); }
+@media (prefers-color-scheme: dark) {
+  .nav-item.active .nav-icon { color: var(--text-brand); }
+}
+.nav-item.sub { padding-left: 36px; font-size: 14px; font-weight: 400; }
+.nav-icon { width: 20px; height: 20px; flex-shrink: 0; color: var(--text-secondary); }
+.nav-item:hover .nav-icon { color: var(--text-primary); }
+
+.sidebar-footer {
+  border-top: 1px solid var(--border-soft);
+  padding: 12px 16px;
+}
+.user-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--brand-500); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600;
+}
+.user-meta { display: flex; flex-direction: column; min-width: 0; }
+.user-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.user-role { font-size: 12px; color: var(--text-secondary); }
+.signout-btn {
+  margin-top: 8px;
+  background: none; border: none; padding: 6px 0; font-family: inherit;
+  font-size: 14px; color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+}
+.signout-btn:hover { color: var(--text-primary); }
+
+/* ----- Main ----- */
+.main {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.content {
+  flex: 1;
+  padding: 24px 32px;
+  width: 100%;
+}
+.site-footer {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 16px 32px 24px;
+  border-top: 1px solid var(--border-soft);
+}
+
+/* ========= REPORT HEADER ========= */
+.report-header { margin-bottom: 0; }
+.report-eyebrow {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+/* Sticky page-header band — keeps eyebrow, back-link, title, counts,
+   and seat CTA visible while the user scrolls long content.
+   The sub-counts row's bottom border doubles as this band's bottom edge,
+   so no separate border-bottom here. */
+.page-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-page);
+  /* Break out to the full width of .content, regardless of its padding. */
+  margin: -24px -32px 24px;
+  padding: 20px 32px 0;
+}
+@media (max-width: 1024px) {
+  .page-header-sticky { margin: -20px -24px 20px; padding: 16px 24px 0; }
+}
+@media (max-width: 768px) {
+  .page-header-sticky { margin: -16px -16px 16px; padding: 14px 16px 0; }
+}
+@media (max-width: 640px) {
+  .page-header-sticky { margin: -12px -12px 12px; padding: 12px 12px 0; }
+}
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 14px; color: var(--brand-500);
+  background: none; border: none; padding: 0; margin-bottom: 12px;
+  cursor: pointer; font-family: inherit; font-weight: 500;
+}
+.back-btn:hover { text-decoration: underline; }
+.back-btn svg { width: 16px; height: 16px; }
+
+.view-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.view-title {
+  font-size: 24px; font-weight: 600; color: var(--text-primary);
+  letter-spacing: -0.3px; line-height: 1.2;
+}
+.view-subtitle {
+  font-size: 14px; color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.seats { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding-top: 4px; }
+.seats-count { font-size: 14px; color: var(--text-secondary); }
+.seats-filled { font-size: 14px; color: var(--text-secondary); }
+.btn-primary {
+  font-size: 14px; font-weight: 500;
+  padding: 8px 16px; min-height: 36px;
+  border-radius: var(--r-md);
+  border: none; background: var(--brand-500); color: #fff;
+  cursor: pointer; font-family: inherit;
+  transition: background-color 150ms;
+}
+.btn-primary:hover { background: var(--brand-600); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.sub-counts {
+  font-size: 14px; color: var(--text-secondary);
+  padding: 10px 0; margin-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+.sub-counts span + span::before {
+  content: "·"; margin: 0 10px; color: var(--text-tertiary);
+}
+.sub-counts strong { font-weight: 600; color: var(--text-primary); }
+
+/* ========= GROWTH CALLOUT — hero treatment ========= */
+.callout {
+  background: var(--bg-surface);
+  border: 2px solid var(--brand-500);
+  border-radius: var(--r-lg);
+  padding: 28px 32px;
+  margin: 20px 0 28px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  box-shadow: 0 4px 16px rgba(87, 57, 136, 0.12), 0 1px 4px rgba(87, 57, 136, 0.08);
+}
+.callout-icon {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--brand-500);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.callout-icon svg { width: 22px; height: 22px; }
+.callout-body { flex: 1; min-width: 0; }
+.callout-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--brand-500);
+  margin-bottom: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  .callout-eyebrow { color: var(--text-brand); }
+}
+.callout-pers {
+  font-size: 20px;
+  /* 1.7 (not 1.5) so the bordered <b> pills have ~10px of vertical
+     breathing room when one wraps directly above another — at 1.5
+     their 1.5px borders visually touch. */
+  line-height: 1.7;
+  color: var(--text-primary);
+  font-weight: 400;
+  letter-spacing: -0.2px;
+}
+.callout-pers b {
+  font-weight: 700;
+  color: var(--brand-500);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--brand-500);
+  border-radius: var(--r-md);
+  /* Tightened: explicit 1.2 line-height overrides the parent's 1.7 so the
+     pill doesn't inherit a 34px-tall content box. Vertical padding trimmed
+     from 2px → 1px. Net pill height drops from ~41px → ~29px, opening
+     ~5px of clearance against pills on adjacent wrapped lines. */
+  line-height: 1.2;
+  padding: 1px 10px;
+  white-space: nowrap;
+  display: inline-block;
+  box-shadow: 0 1px 2px rgba(87,57,136,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  .callout-pers b { color: var(--text-brand); }
+}
+@media (max-width: 768px) {
+  .callout { padding: 20px; gap: 14px; border-radius: var(--r-md); }
+  .callout-icon { width: 36px; height: 36px; }
+  .callout-icon svg { width: 18px; height: 18px; }
+  .callout-pers { font-size: 16px; }
+}
+
+/* ========= PROJECTED CARDS ========= */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.mc {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-card);
+}
+.mc-l {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+  line-height: 1.35;
+  min-height: 2.7em; /* reserves room for 2-line wrap so all cards align */
+}
+.mc-v { font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+.mc-s { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+.mc-trend {
+  font-size: 12px; color: var(--ok-fg);
+  margin-top: 8px; display: flex; align-items: center; gap: 4px;
+}
+.mc-trend svg { width: 14px; height: 14px; }
+.mc-trend .pos { font-weight: 600; }
+
+/* ========= AGGREGATE CHART CARDS ========= */
+.gc {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: border-color 150ms, box-shadow 150ms;
+  box-shadow: var(--shadow-card);
+}
+.gc:hover { border-color: var(--border-brand); box-shadow: var(--shadow-elev); }
+.gc:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+.gc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.gc-name { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.gc-count { font-size: 14px; color: var(--text-secondary); margin-left: 10px; font-weight: 400; }
+.gc-arrow { width: 20px; height: 20px; color: var(--text-tertiary); }
+/* District-card title block: stacks the school name above the count line
+   so the per-grade breakdown ("35 students · 8 K · 20 1st · 7 2nd") gets
+   its own row. School-view grade cards keep the inline treatment because
+   their count is just one short segment. */
+.gc-titles { min-width: 0; }
+.gc-titles .gc-count {
+  display: block;
+  margin: 4px 0 0;
+}
+/* Mirror the page-level sub-counts treatment: bold numbers shift to
+   primary text color so the value pops against the secondary-grey label. */
+.gc-titles .gc-count strong { font-weight: 600; color: var(--text-primary); }
+
+.gc-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px 28px;
+}
+@media (max-width: 1024px) { .gc-metrics { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .gc-metrics { grid-template-columns: 1fr; } }
+
+/* ----- Chart (Chris's cm-* pattern, restyled to IRDL) ----- */
+.cm { padding: 0; min-width: 0; }
+.cm-head {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cm-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.cm-name-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cm-name-mark svg { width: 16px; height: 16px; }
+.cm-name-mark.ok { color: var(--ok-fg); }
+.cm-name-mark.bad { color: var(--bad-fg); }
+
+.cm-bar-wrap { position: relative; margin-bottom: 10px; padding-bottom: 24px; }
+.cm-bar {
+  height: 20px;
+  background: var(--bg-sunken);
+  border-radius: 10px;
+  position: relative;
+  overflow: visible;
+}
+.cm-fill { position: absolute; top: 0; height: 100%; border-radius: 10px 0 0 10px; z-index: 2; }
+.cm-proj { position: absolute; top: 0; height: 100%; z-index: 1; overflow: hidden; }
+.cm-proj-i { width: 100%; height: 100%; }
+.cm-target {
+  position: absolute; top: -3px; height: 26px; width: 2px; border-radius: 1px;
+  background: var(--text-primary); z-index: 3;
+}
+.cm-pill {
+  position: absolute; top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px; font-weight: 600;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 1px 8px;
+  z-index: 5;
+  white-space: nowrap; line-height: 1.2;
+  color: var(--text-primary);
+}
+.cm-target-pill {
+  position: absolute; top: 26px;
+  transform: translateX(-50%);
+  font-size: 12px; font-weight: 500;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-pill);
+  padding: 1px 8px;
+  z-index: 5;
+  white-space: nowrap; line-height: 1.2;
+  color: var(--text-secondary);
+}
+.cm-stats {
+  text-align: center; font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-sunken);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+.cm-stat { display: block; line-height: 1.5; }
+.cm-stats b { font-weight: 600; color: var(--text-primary); }
+
+/* ========= LEGEND ========= */
+.legend {
+  display: flex; gap: 16px; margin-bottom: 16px;
+  font-size: 12px; color: var(--text-secondary);
+  flex-wrap: wrap; align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-item svg { width: 12px; height: 12px; }
+.ld { width: 10px; height: 10px; border-radius: 2px; }
+.ll { width: 12px; height: 2.5px; border-radius: 1px; }
+.ls {
+  width: 18px; height: 10px; border-radius: 2px;
+  background: repeating-linear-gradient(45deg, var(--text-secondary) 0 2px, transparent 2px 6px);
+}
+
+/* ========= GRADE-VIEW TOOLBAR (pinned secondary header) =========
+   On Grade view, the metric toggles + legend are wrapped in .grade-toolbar
+   and pin directly under the page-header-sticky band as the user scrolls. */
+.grade-toolbar {
+  position: sticky;
+  top: var(--page-header-h, 150px);
+  z-index: 40;
+  background: var(--bg-page);
+  padding: 16px 0;
+  margin: 0;
+}
+.grade-toolbar > .controls-row { margin-bottom: 12px; }
+.grade-toolbar > .legend { margin-bottom: 0; }
+
+/* ========= METRIC TOGGLE ========= */
+.controls-row {
+  display: flex; gap: 8px; margin-bottom: 16px;
+  align-items: center; flex-wrap: wrap;
+}
+.controls-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.controls-select {
+  display: none; width: 100%; font-size: 16px;
+  padding: 8px 12px; font-family: inherit;
+  background: var(--bg-surface); color: var(--text-primary);
+  border: 1px solid var(--border-input); border-radius: var(--r-md);
+}
+.tb {
+  padding: 6px 14px; font-size: 14px; font-weight: 500;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-input);
+  background: var(--bg-surface);
+  color: var(--text-body);
+  cursor: pointer; font-family: inherit;
+  min-height: 36px;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+.tb:hover { border-color: var(--brand-500); color: var(--brand-500); }
+.tb.active {
+  background: var(--brand-500);
+  color: #fff;
+  border-color: var(--brand-500);
+}
+
+/* ========= STUDENT TABLE =========
+   The horizontal-scroll context (.table-wrap with overflow-x: auto) is a
+   sticky containing block, so position:sticky on <thead> would stick to the
+   wrap's scrollport, not the viewport. To pin the column row below the
+   page-header + toolbar bands, we render a separate .sticky-thead element
+   OUTSIDE .table-wrap and overlap it onto the real <thead> at scroll=0
+   via a negative margin-bottom (sized to thead height in JS). The real
+   <thead> remains in the table for semantics. */
+.table-wrap {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  table-layout: fixed;
+  min-width: 1000px;
+}
+/* Sticky fake-header: pinned to viewport below page-header + toolbar.
+   Sits in flow as a sibling above .table-wrap so its sticky context is
+   the page, not the table-wrap's scrollport. JS applies a negative
+   margin-bottom equal to the real <thead>'s height so the two visually
+   overlap at scroll=0 (no double-header). */
+.sticky-thead {
+  position: sticky;
+  top: calc(var(--page-header-h, 150px) + var(--toolbar-h, 90px));
+  z-index: 30;
+  overflow: hidden;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  background: transparent;
+}
+.sticky-thead-scroll {
+  width: 100%;
+  will-change: transform;
+}
+.sticky-thead-table {
+  width: 100%;
+  min-width: 1000px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  table-layout: fixed;
+}
+th {
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+  background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer; user-select: none; white-space: nowrap;
+}
+th:hover { color: var(--text-primary); }
+/* Round the corner cells to follow the .table-wrap's rounded border
+   (now that we no longer use overflow:hidden on the wrapper). */
+thead th:first-child { border-top-left-radius: var(--r-md); }
+thead th:last-child { border-top-right-radius: var(--r-md); }
+tbody tr:last-child td:first-child { border-bottom-left-radius: var(--r-md); }
+tbody tr:last-child td:last-child { border-bottom-right-radius: var(--r-md); }
+th .sa { font-size: 12px; margin-left: 4px; opacity: 0.4; }
+th.sorted { color: var(--text-primary); }
+th.sorted .sa { opacity: 1; color: var(--brand-500); }
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--bg-hover); }
+.sn { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tn { color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bv { text-align: right; color: var(--text-secondary); }
+.cv { text-align: right; font-weight: 600; }
+
+.bb {
+  width: 100%; height: 14px;
+  background: var(--bg-sunken);
+  border-radius: 7px; min-width: 60px;
+  overflow: visible; position: relative;
+}
+.bf { position: absolute; top: 0; height: 100%; border-radius: 7px 0 0 7px; z-index: 2; }
+.bp { position: absolute; top: 0; height: 100%; z-index: 1; overflow: hidden; }
+.bp-i { width: 100%; height: 100%; }
+.bs {
+  position: absolute; top: 1px; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--bg-surface);
+  border: 2px solid; z-index: 3;
+  /* No translateX — circle's left edge aligns with the solid bar's start. */
+}
+.bl {
+  position: absolute; top: -3px; height: 20px; width: 2px;
+  z-index: 3; border-radius: 1px;
+  background: var(--text-primary);
+}
+
+.gv { font-size: 14px; font-weight: 600; }
+.pos { color: var(--ok-fg); }
+.neg { color: var(--bad-fg); }
+
+.pc {
+  font-size: 14px; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.pc-status {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; flex-shrink: 0;
+}
+.pc-status svg { width: 14px; height: 14px; }
+.pc.on-track .pc-status { color: var(--ok-fg); }
+.pc.below .pc-status { color: var(--bad-fg); }
+
+.dc { font-size: 14px; font-weight: 600; }
+
+.mastered-cell {
+  text-align: left; color: var(--text-secondary);
+  font-style: italic; padding-left: 0;
+}
+.mastered-cell .mast-icon {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ok-fg);
+}
+.mastered-cell .mast-icon svg { width: 14px; height: 14px; }
+
+/* ========= RESPONSIVE ========= */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 72px; }
+  .sidebar-school, .nav-section-label, .nav-item span.nav-label, .user-meta, .signout-btn span { display: none; }
+  .sidebar-logo img { height: 28px; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .nav-item.sub { padding: 10px; }
+  .user-row { justify-content: center; }
+  .content { padding: 20px 24px; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .content { padding: 16px; }
+  .view-title { font-size: 20px; }
+  .controls-buttons { display: none; }
+  .controls-select { display: block; }
+  .callout { padding: 16px; }
+  .callout-pers { font-size: 16px; }
+}
+@media (max-width: 640px) {
+  .content { padding: 12px; }
+  .gc { padding: 16px; }
+  .metrics-row { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
-<div class="dash" id="app"></div>
-<div class="dash-footer" id="app-footer"></div>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div class="app">
+
+  <!-- ========================= SIDEBAR ========================= -->
+  <aside class="sidebar" aria-label="Primary navigation">
+    <div class="sidebar-logo">
+      <img src="https://ignite-reading.com/wp-content/uploads/ignite-logo.svg" alt="Ignite Reading">
+    </div>
+    <div class="sidebar-school">Riverside Unified School District</div>
+
+    <nav class="sidebar-nav" aria-label="Reports">
+      <div class="nav-section">
+        <button class="nav-item" type="button">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+          </svg>
+          <span class="nav-label">Home</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Reports</div>
+        <button class="nav-item active" type="button" aria-current="page">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+          </svg>
+          <span class="nav-label">Student Progress</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+          </svg>
+          <span class="nav-label">Session Attendance</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+          </svg>
+          <span class="nav-label">Roster</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <button class="nav-item" type="button">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/>
+          </svg>
+          <span class="nav-label">Help Center</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" aria-hidden="true">PC</div>
+        <div class="user-meta">
+          <span class="user-name">Paige Chou</span>
+          <span class="user-role">District Leader</span>
+        </div>
+      </div>
+      <button class="signout-btn" type="button">
+        <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+        </svg>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========================= MAIN ========================= -->
+  <div class="main">
+    <main id="main-content" class="content" tabindex="-1">
+      <div class="dash" id="app"></div>
+    </main>
+    <footer class="site-footer" id="app-footer"></footer>
+  </div>
+
+</div>
+
 <script>
-var MO=4,MT=10;
-var GM={
+/* =========================================================================
+ * DATA ENGINE — ported verbatim from Chris's prototype (proven to work)
+ * Restyled colors are read from CSS custom properties via getComputedStyle.
+ * ========================================================================= */
+var MO = 4, MT = 10;
+
+var GM = {
 k:{name:"Kindergarten",plural:"Kindergartners",metrics:{
-wcpm:{n:"Words correct per minute",t:10,b:2,mx:15,u:"WCPM",cap:null,key:1},
-hfw:{n:"High-frequency words",t:20,b:5,mx:25,u:"high-frequency words",cap:null,key:1},
-pa:{n:"Phonological awareness",t:35,b:14,mx:45,u:"correct sound segments",cap:null,key:0},
-lnf:{n:"Letter naming fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}},
+  wcpm:{n:"Words Correct per Minute",t:10,b:2,mx:15,u:"WCPM",cap:null,key:1},
+  hfw:{n:"High-Frequency Words",t:20,b:5,mx:25,u:"high-frequency words",cap:null,key:1},
+  pa:{n:"Phonological Awareness",t:35,b:14,mx:45,u:"correct sound segments",cap:null,key:0},
+  lnf:{n:"Letter Naming Fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}},
 g1:{name:"1st Grade",plural:"1st Graders",metrics:{
-wcpm:{n:"Words correct per minute",t:42,b:17,mx:58,u:"WCPM",cap:null,key:1},
-hfw:{n:"High-frequency words",t:200,b:80,mx:220,u:"high-frequency words",cap:200,key:1},
-pa:{n:"Phonological awareness",t:35,b:14,mx:45,u:"correct sound segments",cap:null,key:0},
-lnf:{n:"Letter naming fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}},
+  wcpm:{n:"Words Correct per Minute",t:42,b:17,mx:58,u:"WCPM",cap:null,key:1},
+  hfw:{n:"High-Frequency Words",t:200,b:80,mx:220,u:"high-frequency words",cap:200,key:1},
+  pa:{n:"Phonological Awareness",t:35,b:14,mx:45,u:"correct sound segments",cap:null,key:0},
+  lnf:{n:"Letter Naming Fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}},
 g2:{name:"2nd Grade",plural:"2nd Graders",metrics:{
-wcpm:{n:"Words correct per minute",t:90,b:40,mx:110,u:"WCPM",cap:null,key:1},
-hfw:{n:"High-frequency words",t:200,b:120,mx:220,u:"high-frequency words",cap:200,key:1},
-pa:{n:"Phonological awareness",t:35,b:14,mx:45,u:"correct sound segments",cap:null,key:0},
-lnf:{n:"Letter naming fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}}
+  wcpm:{n:"Words Correct per Minute",t:90,b:40,mx:110,u:"WCPM",cap:null,key:1},
+  hfw:{n:"High-Frequency Words",t:200,b:120,mx:220,u:"high-frequency words",cap:200,key:1},
+  pa:{n:"Phonological Awareness",t:35,b:14,mx:45,u:"correct sound segments",cap:null,key:0},
+  lnf:{n:"Letter Naming Fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}}
 };
-var GKS=['k','g1','g2'];
+var GKS = ['k','g1','g2'];
 
 function rng(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 
 var FN=["Ava","Ben","Chloe","Dylan","Emma","Finn","Grace","Hugo","Aiden","Bella","Carlos","Daisy","Ethan","Fatima","Gabi","Henry","Izzy","Jayden","Kayla","Liam","Maya","Noah","Olivia","Preston","Quinn","Rosa","Sam","Tiana","Alex","Brooklyn","Charlie","Diana","Eli","Freya","George","Mia","Lucas","Sophia","Leo","Zara","Aria","Owen","Luna","Jack","Nora","Theo","Ivy","Max","Lily","Ryan","Harper","Cole","Stella","Wyatt","Ruby","Asher","Hazel","Mila","Caleb","Violet","Elijah","Scarlett","Nathan","Amelia","Logan","Penny","Miles","Clara","Ezra","Willow","Isaiah","Autumn","Jude","Sienna","Kai","Margot","Ravi","Priya","Yuki","Kenji","Luca","Ines","Omar","Leila","Soren","Jasper","Iris","Felix","Ada","Rowan","Sage"];
-var LI=["A","B","C","D","E","F","G","H","J","K","L","M","N","P","R","S","T","V","W"];
+var LN=["Anderson","Brown","Chen","Davis","Garcia","Hernandez","Johnson","Kim","Lee","Martinez","Nguyen","Patel","Robinson","Smith","Tanaka","Thompson","Vasquez","Williams","Bell","Carter","Diaz","Evans","Foster","Gomez","Hayes","Ibrahim","Jackson","Khan","Lopez","Miller","Nakamura","Park","Reyes","Singh","Torres","Walsh","Yoon","Adams","Brooks","Cohen","Dixon","Edwards","Flores","Gupta","Henderson","Ito","Jensen","Lin","Morales","Nash","Owen","Ramirez","Sato","Tran","Vega","Wong","Young","Bauer","Cruz","Doyle","Espinoza","Fischer","Hall","Joshi","Kaur","Lambert","Mehta","Ortiz","Perez","Quinn","Reed","Suzuki","Tucker","Wells","Yates","Castro","Doan","Fernandez","Gonzalez","Hassan","Iyer","Jung"];
 var TN=["Ms. Rivera","Mr. Chen","Ms. Okafor","Mr. Patel","Ms. Lindgren","Mr. Davis","Ms. Tanaka","Mr. Kowalski","Ms. Hernandez","Mr. Brooks","Ms. Nguyen","Mr. Sullivan","Ms. Adeyemi","Mr. Frost","Ms. Kaplan","Mr. Reeves","Ms. Lombardi","Mr. Shah"];
 
-var BOY_R={
+var BOY_R = {
 k:{wcpm:[0,2],hfw:[0,5],pa:[1,8],lnf:[2,12]},
 g1:{wcpm:[3,15],hfw:[8,38],pa:[30,45],lnf:[35,50]},
 g2:{wcpm:[20,45],hfw:[60,120],pa:[38,45],lnf:[42,50]}
 };
 
 function genStudents(r,n,gk){
-var mks=Object.keys(GM[gk].metrics);
-var nTeachers=Math.max(1,Math.ceil(n/20));
-var teachers=[];var usedT={};
-for(var ti=0;ti<nTeachers;ti++){var tn;do{tn=TN[Math.floor(r()*TN.length)]}while(usedT[tn]);usedT[tn]=true;teachers.push(tn)}
-var used={};var students=[];
-for(var i=0;i<n;i++){
-var nm;do{nm=FN[Math.floor(r()*FN.length)]+' '+LI[Math.floor(r()*LI.length)]+'.';}while(used[nm]);
-used[nm]=true;
-var s={name:nm,teacher:teachers[i%nTeachers]};
-mks.forEach(function(mk){
-var met=GM[gk].metrics[mk];
-if(met.t===null){s[mk]={b:0,c:Math.floor(r()*(met.mx+1))};return}
-var br=BOY_R[gk][mk];
-var boy=Math.round(br[0]+r()*(br[1]-br[0]));
-// Mastered: BOY already at or above the EOY target. No further growth tracked.
-if(boy>=met.t){s[mk]={b:boy,c:boy,mastered:true};return}
-var thr=boy+(met.t-boy)*0.4;
-var cur;
-if(r()<0.68){
-var hi=met.cap?Math.min(met.cap,met.t*0.85):met.t*0.85;
-cur=Math.round(thr+r()*Math.max(hi-thr,3));
-}else{
-cur=Math.round(boy+1+r()*Math.max(thr-boy-2,1));
-}
-if(met.cap)cur=Math.min(cur,met.cap);
-cur=Math.max(boy+1,cur);
-s[mk]={b:boy,c:cur};
-});
-students.push(s);
-}
-return students;
+  var mks=Object.keys(GM[gk].metrics);
+  var nTeachers=Math.max(1,Math.ceil(n/20));
+  var teachers=[];var usedT={};
+  for(var ti=0;ti<nTeachers;ti++){var tn;do{tn=TN[Math.floor(r()*TN.length)]}while(usedT[tn]);usedT[tn]=true;teachers.push(tn)}
+  var used={};var students=[];
+  for(var i=0;i<n;i++){
+    var nm;do{nm=FN[Math.floor(r()*FN.length)]+' '+LN[Math.floor(r()*LN.length)];}while(used[nm]);
+    used[nm]=true;
+    var s={name:nm,teacher:teachers[i%nTeachers]};
+    mks.forEach(function(mk){
+      var met=GM[gk].metrics[mk];
+      if(met.t===null){s[mk]={b:0,c:Math.floor(r()*(met.mx+1))};return}
+      var br=BOY_R[gk][mk];
+      var boy=Math.round(br[0]+r()*(br[1]-br[0]));
+      if(boy>=met.t){s[mk]={b:boy,c:boy,mastered:true};return}
+      var thr=boy+(met.t-boy)*0.4;
+      var cur;
+      if(r()<0.68){
+        var hi=met.cap?Math.min(met.cap,met.t*0.85):met.t*0.85;
+        cur=Math.round(thr+r()*Math.max(hi-thr,3));
+      }else{
+        cur=Math.round(boy+1+r()*Math.max(thr-boy-2,1));
+      }
+      if(met.cap)cur=Math.min(cur,met.cap);
+      cur=Math.max(boy+1,cur);
+      s[mk]={b:boy,c:cur};
+    });
+    students.push(s);
+  }
+  return students;
 }
 
-var DISTRICT_NAME="Riverside Unified School District";
-var DMET={k:'wcpm',g1:'wcpm',g2:'wcpm'};
-var DMET_LABEL={k:'WCPM',g1:'WCPM',g2:'WCPM'};
+var DISTRICT_NAME = "Riverside Unified School District";
+var DMET = {k:'wcpm',g1:'wcpm',g2:'wcpm'};
 
-var SCFG=[
-{name:"Lincoln Elementary",seed:42,k:8,g1:20,g2:7,seats:0},
-{name:"Washington Elementary",seed:137,k:12,g1:28,g2:15,seats:3},
-{name:"Jefferson Elementary",seed:256,k:0,g1:22,g2:10,seats:0},
-{name:"Roosevelt Elementary",seed:389,k:6,g1:15,g2:0,seats:2},
-{name:"Madison Elementary",seed:512,k:11,g1:25,g2:12,seats:0},
-{name:"Adams Elementary",seed:731,k:0,g1:20,g2:0,seats:1}
+var SCFG = [
+  {name:"Lincoln Elementary",seed:42,k:8,g1:20,g2:7,seats:0},
+  {name:"Washington Elementary",seed:137,k:12,g1:28,g2:15,seats:3},
+  {name:"Jefferson Elementary",seed:256,k:0,g1:22,g2:10,seats:0},
+  {name:"Roosevelt Elementary",seed:389,k:6,g1:15,g2:0,seats:2},
+  {name:"Madison Elementary",seed:512,k:11,g1:25,g2:12,seats:0},
+  {name:"Adams Elementary",seed:731,k:0,g1:20,g2:0,seats:1}
 ];
 
-var SCHOOLS=SCFG.map(function(cfg){
-var r=rng(cfg.seed);
-return{name:cfg.name,seats:cfg.seats,students:{
-k:cfg.k>0?genStudents(r,cfg.k,'k'):[],
-g1:cfg.g1>0?genStudents(r,cfg.g1,'g1'):[],
-g2:cfg.g2>0?genStudents(r,cfg.g2,'g2'):[]}};
+var SCHOOLS = SCFG.map(function(cfg){
+  var r=rng(cfg.seed);
+  return{name:cfg.name,seats:cfg.seats,students:{
+    k:cfg.k>0?genStudents(r,cfg.k,'k'):[],
+    g1:cfg.g1>0?genStudents(r,cfg.g1,'g1'):[],
+    g2:cfg.g2>0?genStudents(r,cfg.g2,'g2'):[]}};
 });
 
-var st={view:'district',si:null,gk:null,gm:{},sort:'name',asc:true,filter:'all'};
+var st = {view:'district',si:null,gk:null,gm:{},sort:'name',asc:true,filter:'all'};
 SCHOOLS.forEach(function(s,i){st.gm[i]={k:'wcpm',g1:'wcpm',g2:'wcpm'};});
 
-function sc(s){return s==='on-track'?'#639922':'#E24B4A'}
+/* =========================================================================
+ * THEME-AWARE STATUS COLOR (reads CSS variable so bars adapt to dark mode)
+ * ========================================================================= */
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function statusBarColor(status){
+  return status === 'on-track' ? cssVar('--ok-bar') : cssVar('--bad-bar');
+}
+function statusBorderColor(status){
+  return status === 'on-track' ? cssVar('--ok-bar-edge') : cssVar('--bad-bar-edge');
+}
+function slBg(c){return 'repeating-linear-gradient(45deg,'+c+' 0px,'+c+' 2px,transparent 2px,transparent 6px)'}
+
 function proj(boy,cur,cap){var r=(cur-boy)/MO;var p=Math.round(boy+r*MT);if(cap!==null)p=Math.min(p,cap);return p}
-function slBg(c){return'repeating-linear-gradient(45deg,'+c+' 0px,'+c+' 2px,transparent 2px,transparent 6px)'}
 
-// Proxy formula for months-of-progress, pending real definition.
-// Per-student: fraction of needed progress made, scaled to total school months.
+/* =========================================================================
+ * NON-COLOR STATUS CUES — required by Design Brief accessibility note
+ * ========================================================================= */
+var ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+var ICON_WARN = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.732 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>';
+var ICON_ARROW_UP = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25L12 21m0 0l-3.75-3.75M12 21V3"/></svg>';
+var ICON_ARROW_LEFT = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>';
+var ICON_CHEVRON_R = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>';
+var ICON_TRENDING_UP = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>';
+
+function statusMark(status){
+  // Non-color status cue — small icon next to the metric title.
+  // Pairs with bar color to satisfy WCAG 1.4.1 (Use of Color).
+  var cls = status === 'on-track' ? 'ok' : 'bad';
+  var icon = status === 'on-track' ? ICON_CHECK : ICON_WARN;
+  var label = status === 'on-track' ? 'On track' : 'Below target';
+  return '<span class="cm-name-mark '+cls+'" role="img" aria-label="'+label+'" title="'+label+'">'+icon+'</span>';
+}
+
+/* =========================================================================
+ * MOP / aggregation / callout helpers (verbatim Chris)
+ * ========================================================================= */
 function mopStudent(boy,cur,target,totalMonths){
-if(target==null)return null;
-if(target<=boy)return totalMonths;
-var frac=Math.max(0,(cur-boy)/(target-boy));
-return Math.min(totalMonths,frac*totalMonths);
+  if(target==null)return null;
+  if(target<=boy)return totalMonths;
+  var frac=Math.max(0,(cur-boy)/(target-boy));
+  return Math.min(totalMonths,frac*totalMonths);
 }
 
-// Compute callout stats for a list of {student, gk} items across given metric keys.
 function calloutFor(scope,metricKeys){
-var perMetric={};var allMops=[];
-metricKeys.forEach(function(mk){perMetric[mk]=[]});
-scope.forEach(function(it){
-var g=GM[it.gk];
-metricKeys.forEach(function(mk){
-var m=g.metrics[mk];if(!m)return;
-var d=it.student[mk];if(!d)return;
-var cur=m.cap!=null?Math.min(d.c,m.cap):d.c;
-perMetric[mk].push(cur-d.b);
-var mop=mopStudent(d.b,cur,m.t,MT);
-if(mop!=null)allMops.push(mop);
-});
-});
-var r={count:scope.length,avgMonths:0,growths:{}};
-if(allMops.length)r.avgMonths=Math.round(allMops.reduce(function(a,b){return a+b},0)/allMops.length);
-metricKeys.forEach(function(mk){
-var arr=perMetric[mk];
-r.growths[mk]=arr.length?Math.round(arr.reduce(function(a,b){return a+b},0)/arr.length):0;
-});
-return r;
+  var perMetric={};var allMops=[];
+  metricKeys.forEach(function(mk){perMetric[mk]=[]});
+  scope.forEach(function(it){
+    var g=GM[it.gk];
+    metricKeys.forEach(function(mk){
+      var m=g.metrics[mk];if(!m)return;
+      var d=it.student[mk];if(!d)return;
+      var cur=m.cap!=null?Math.min(d.c,m.cap):d.c;
+      perMetric[mk].push(cur-d.b);
+      var mop=mopStudent(d.b,cur,m.t,MT);
+      if(mop!=null)allMops.push(mop);
+    });
+  });
+  var r={count:scope.length,avgMonths:0,growths:{}};
+  if(allMops.length)r.avgMonths=Math.round(allMops.reduce(function(a,b){return a+b},0)/allMops.length);
+  metricKeys.forEach(function(mk){
+    var arr=perMetric[mk];
+    r.growths[mk]=arr.length?Math.round(arr.reduce(function(a,b){return a+b},0)/arr.length):0;
+  });
+  return r;
 }
 
-// Avg months of growth across a scope of {student, gk} items, using all key metrics with targets.
 function avgMopFor(scope){
-var mops=[];
-scope.forEach(function(it){
-var g=GM[it.gk];
-Object.keys(g.metrics).forEach(function(mk){
-var m=g.metrics[mk];if(!m.key||m.t==null)return;
-var d=it.student[mk];if(!d)return;
-var cur=m.cap!=null?Math.min(d.c,m.cap):d.c;
-var mop=mopStudent(d.b,cur,m.t,MT);
-if(mop!=null)mops.push(mop);
-});
-});
-return mops.length?Math.round(mops.reduce(function(a,b){return a+b},0)/mops.length):0;
+  var mops=[];
+  scope.forEach(function(it){
+    var g=GM[it.gk];
+    Object.keys(g.metrics).forEach(function(mk){
+      var m=g.metrics[mk];if(!m.key||m.t==null)return;
+      var d=it.student[mk];if(!d)return;
+      var cur=m.cap!=null?Math.min(d.c,m.cap):d.c;
+      var mop=mopStudent(d.b,cur,m.t,MT);
+      if(mop!=null)mops.push(mop);
+    });
+  });
+  return mops.length?Math.round(mops.reduce(function(a,b){return a+b},0)/mops.length):0;
 }
 
 function calloutHtml(personalHtml){
-if(!personalHtml)return '';
-return '<div class="callout"><div class="callout-pers">'+personalHtml+'</div></div>';
+  if(!personalHtml)return '';
+  return '<div class="callout" role="region" aria-label="Growth highlight">'
+    +'<div class="callout-icon" aria-hidden="true">'+ICON_TRENDING_UP+'</div>'
+    +'<div class="callout-body">'
+    +'<div class="callout-eyebrow">Growth Highlight</div>'
+    +'<p class="callout-pers">'+personalHtml+'</p>'
+    +'</div></div>';
 }
 
 function seatsBlock(seats){
-if(seats>0)return '<div class="seats"><span class="seats-count">'+seats+' open seat'+(seats!==1?'s':'')+'</span><button class="seats-cta" type="button">Fill Seats</button></div>';
-return '<div class="seats"><span class="seats-filled">All seats filled</span></div>';
+  if(seats>0)return '<div class="seats"><span class="seats-count">'+seats+' open seat'+(seats!==1?'s':'')+'</span><button class="btn-primary" type="button">Fill Seats</button></div>';
+  return '<div class="seats"><span class="seats-filled">All seats filled</span></div>';
 }
 
-// Aggregate stats for a metric (wcpm or hfw) across a scope of {student, gk} items.
-// Real numbers — averaged regardless of grade. Target is the weighted average target
-// across the same students. Mastered students excluded from avg growth but counted as
-// "projected to meet target".
 function metricAgg(scope,mk){
-var boys=[],currs=[],projs=[],targets=[],growths=[],mx=0,projMet=0;
-scope.forEach(function(it){
-var m=GM[it.gk].metrics[mk];if(!m||m.t==null)return;
-var d=gsd(it.student,it.gk,mk);if(!d)return;
-boys.push(d.boy);currs.push(d.current);projs.push(d.projected);targets.push(m.t);
-if(!d.mastered)growths.push(d.growth);
-if(d.mastered||d.projected>=m.t)projMet++;
-if(m.mx>mx)mx=m.mx;
-});
-if(!boys.length)return null;
-function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0}
-return{
-boy:Math.round(avg(boys)),current:Math.round(avg(currs)),
-projected:Math.round(avg(projs)),target:Math.round(avg(targets)),
-growth:Math.round(avg(growths)),projPct:Math.round(projMet/boys.length*100),
-mx:mx,count:boys.length
-};
+  var boys=[],currs=[],projs=[],targets=[],growths=[],mx=0,projMet=0;
+  scope.forEach(function(it){
+    var m=GM[it.gk].metrics[mk];if(!m||m.t==null)return;
+    var d=gsd(it.student,it.gk,mk);if(!d)return;
+    boys.push(d.boy);currs.push(d.current);projs.push(d.projected);targets.push(m.t);
+    if(!d.mastered)growths.push(d.growth);
+    if(d.mastered||d.projected>=m.t)projMet++;
+    if(m.mx>mx)mx=m.mx;
+  });
+  if(!boys.length)return null;
+  function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0}
+  return{
+    boy:Math.round(avg(boys)),current:Math.round(avg(currs)),
+    projected:Math.round(avg(projs)),target:Math.round(avg(targets)),
+    growth:Math.round(avg(growths)),projPct:Math.round(projMet/boys.length*100),
+    mx:mx,count:boys.length
+  };
 }
 
 function pickVisiblePills(specs){
-// specs: array in priority order (highest first). Each item: {pct, label, full, key}
-var threshold=14;var visible=[];
-specs.forEach(function(p){
-var collides=visible.some(function(v){return Math.abs(v.pct-p.pct)<threshold});
-if(!collides)visible.push(p);
-});
-return visible;
+  var threshold=14;var visible=[];
+  specs.forEach(function(p){
+    var collides=visible.some(function(v){return Math.abs(v.pct-p.pct)<threshold});
+    if(!collides)visible.push(p);
+  });
+  return visible;
 }
 
+/* =========================================================================
+ * RENDER: aggregate metric chart  (Chris's structure, IRDL colors)
+ * ========================================================================= */
 function renderMetricChart(stats,title){
-if(!stats||!stats.mx)return '<div class="cm"><div class="cm-name">'+title+'</div><div class="cm-stats" style="font-style:italic">No data</div></div>';
-var mx=stats.mx;
-var bp=Math.max(0,Math.min(100,stats.boy/mx*100));
-var cp=Math.min(100,stats.current/mx*100);
-var pp=Math.min(100,stats.projected/mx*100);
-var tp=Math.min(100,stats.target/mx*100);
-var status=stats.projected>=stats.target?'on-track':'below';
-var col=sc(status);
-// Priority: Start > Projected > Current > Target
-var pillSpecs=[
-{key:'start',pct:bp,label:stats.boy,full:'Start: '+stats.boy},
-{key:'projected',pct:pp,label:stats.projected,full:'Projected: '+stats.projected},
-{key:'current',pct:cp,label:stats.current,full:'Current: '+stats.current}
-];
-var visible=pickVisiblePills(pillSpecs);
-var h='<div class="cm"><div class="cm-name">'+title+'</div><div class="cm-bar-wrap"><div class="cm-bar">';
-if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
-h+='<div class="cm-fill" style="left:'+bp+'%;width:'+Math.max(0,cp-bp)+'%;background:'+col+'"></div>';
-h+='<div class="cm-target" style="left:'+tp+'%"></div>';
-visible.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+col+'" title="'+p.full+'">'+p.label+'</div>'});
-h+='</div><div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+stats.target+'">'+stats.target+'</div></div>';
-var gSign=stats.growth>=0?'+':'';
-h+='<div class="cm-stats"><span class="cm-stat"><b>'+gSign+stats.growth+'</b> average growth</span><span class="cm-stat"><b>'+stats.projPct+'%</b> projected to meet target</span></div>';
-h+='</div>';
-return h;
+  if(!stats||!stats.mx)return '<div class="cm"><div class="cm-head"><div class="cm-name">'+title+'</div></div><div class="cm-stats" style="font-style:italic">No data</div></div>';
+  // (renderMetricChart continues below)
+  var mx=stats.mx;
+  var bp=Math.max(0,Math.min(100,stats.boy/mx*100));
+  var cp=Math.min(100,stats.current/mx*100);
+  var pp=Math.min(100,stats.projected/mx*100);
+  var tp=Math.min(100,stats.target/mx*100);
+  var status=stats.projected>=stats.target?'on-track':'below';
+  var col=statusBarColor(status);
+  var bord=statusBorderColor(status);
+  var pillSpecs=[
+    {key:'start',pct:bp,label:stats.boy,full:'Start: '+stats.boy},
+    {key:'projected',pct:pp,label:stats.projected,full:'Projected: '+stats.projected},
+    {key:'current',pct:cp,label:stats.current,full:'Current: '+stats.current}
+  ];
+  var visible=pickVisiblePills(pillSpecs);
+
+  var h='<div class="cm"><div class="cm-head">'+statusMark(status)+'<div class="cm-name">'+title+'</div></div>';
+  h+='<div class="cm-bar-wrap"><div class="cm-bar">';
+  if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
+  h+='<div class="cm-fill" style="left:'+bp+'%;width:'+Math.max(0,cp-bp)+'%;background:'+col+'"></div>';
+  h+='<div class="cm-target" style="left:'+tp+'%"></div>';
+  visible.forEach(function(p){
+    h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>';
+  });
+  h+='</div><div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+stats.target+'">'+stats.target+'</div></div>';
+  var gSign=stats.growth>=0?'+':'';
+  h+='<div class="cm-stats"><span class="cm-stat"><b>'+gSign+stats.growth+'</b> average growth</span><span class="cm-stat"><b>'+stats.projPct+'%</b> projected to meet target</span></div>';
+  h+='</div>';
+  return h;
 }
 
 function renderMonthsChart(months){
-// Project current months of growth forward: rate so far (months / MO) extended to the full year (MT).
-var projected=Math.round(months*MT/MO);
-var mx=Math.round(MT*1.5); // room to show projections beyond a full year of growth
-var cp=Math.min(100,months/mx*100);
-var pp=Math.min(100,projected/mx*100);
-var tp=MT/mx*100;
-var status=projected>=MT?'on-track':'below';
-var col=sc(status);
-var h='<div class="cm"><div class="cm-name">Total months of growth</div><div class="cm-bar-wrap"><div class="cm-bar">';
-if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
-h+='<div class="cm-fill" style="left:0%;width:'+cp+'%;background:'+col+'"></div>';
-h+='<div class="cm-target" style="left:'+tp+'%"></div>';
-var pills=pickVisiblePills([
-{key:'projected',pct:pp,label:projected+' mo.',full:'Projected: '+projected+' months of growth'},
-{key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of growth'}
-]);
-pills.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+col+'" title="'+p.full+'">'+p.label+'</div>'});
-h+='</div><div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+MT+' months (full year of growth)">'+MT+' mo.</div></div>';
-h+='<div class="cm-stats"><span class="cm-stat">projected <b>'+projected+' months</b> of growth by year-end</span></div>';
-h+='</div>';
-return h;
+  var projected=Math.round(months*MT/MO);
+  var mx=Math.round(MT*1.5);
+  var cp=Math.min(100,months/mx*100);
+  var pp=Math.min(100,projected/mx*100);
+  var tp=MT/mx*100;
+  var status=projected>=MT?'on-track':'below';
+  var col=statusBarColor(status);
+  var bord=statusBorderColor(status);
+
+  var h='<div class="cm"><div class="cm-head">'+statusMark(status)+'<div class="cm-name">Additional Months of Growth</div></div>';
+  h+='<div class="cm-bar-wrap"><div class="cm-bar">';
+  if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
+  h+='<div class="cm-fill" style="left:0%;width:'+cp+'%;background:'+col+'"></div>';
+  h+='<div class="cm-target" style="left:'+tp+'%"></div>';
+  var pills=pickVisiblePills([
+    {key:'projected',pct:pp,label:projected+' mo.',full:'Projected: '+projected+' months of growth'},
+    {key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of growth'}
+  ]);
+  pills.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>'});
+  h+='</div><div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+MT+' months (full year of growth)">'+MT+' mo.</div></div>';
+  h+='<div class="cm-stats"><span class="cm-stat">projected <b>'+projected+' months</b> of growth by year-end</span></div>';
+  h+='</div>';
+  return h;
 }
 
-// Deterministic "since last week" trend for the prototype (no real week-over-week history).
 function trendFor(value){return Math.max(1,Math.round(value*0.05))}
 
 function projCard(label,value){
-var t=trendFor(value);
-return '<div class="mc"><div class="mc-l">'+label+'</div><div class="mc-v">'+value+'</div><div class="mc-s">by year-end</div><div class="mc-trend"><span class="pos">+'+t+'</span> since last week</div></div>';
+  var t=trendFor(value);
+  return '<div class="mc"><div class="mc-l">'+label+'</div><div class="mc-v">'+value+'</div><div class="mc-s">by year-end</div><div class="mc-trend">'+ICON_TRENDING_UP+'<span class="pos">+'+t+'</span> since last week</div></div>';
 }
 
-// Three projected year-end summary cards for any scope of {student, gk} items.
 function metricCards(scope){
-var projMonths=Math.round(avgMopFor(scope)*MT/MO);
-var w=metricAgg(scope,'wcpm');var f=metricAgg(scope,'hfw');
-var h='<div class="metrics-row">';
-h+=projCard('Projected months of growth',projMonths);
-h+=projCard('Projected WCPM',w?w.projected:0);
-h+=projCard('Projected HFW',f?f.projected:0);
-h+='</div>';
-return h;
+  var projMonths=Math.round(avgMopFor(scope)*MT/MO);
+  var w=metricAgg(scope,'wcpm');var f=metricAgg(scope,'hfw');
+  var h='<div class="metrics-row">';
+  h+=projCard('Projected Additional Months of Growth',projMonths);
+  h+=projCard('Projected Words Correct per Minute',w?w.projected:0);
+  h+=projCard('Projected High-Frequency Words',f?f.projected:0);
+  h+='</div>';
+  return h;
+}
+
+// Shared legend — used on District, School, and Grade views so the visual
+// vocabulary (status colors + target tick + projected stripe) is documented
+// next to every chart.
+function chartLegend(){
+  return '<div class="legend" aria-label="Chart legend">'
+    +'<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> On track</div>'
+    +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below target</div>'
+    +'<div class="legend-item" style="margin-left:8px"><div class="ll" style="background:var(--text-primary)"></div> EOY target</div>'
+    +'<div class="legend-item"><div class="ls"></div> Projected growth</div>'
+    +'</div>';
 }
 
 function gsd(student,gk,mk){
-var m=GM[gk].metrics[mk];var d=student[mk];if(!d)return null;
-if(d.mastered){
-return{name:student.name,teacher:student.teacher,current:d.c,boy:d.b,growth:0,projected:d.c,cs:'on-track',ps:'on-track',delta:m.t!==null?d.c-m.t:null,mastered:true}}
-var cur=m.cap!==null?Math.min(d.c,m.cap):d.c;var gr=cur-d.b;
-var pr=m.t!==null?proj(d.b,cur,m.cap):null;
-var s2=m.t!==null?(pr>=m.t?'on-track':'below'):'on-track';
-var dl=m.t!==null?pr-m.t:null;
-return{name:student.name,teacher:student.teacher,current:cur,boy:d.b,growth:gr,projected:pr,cs:s2,ps:s2,delta:dl,mastered:false}}
+  var m=GM[gk].metrics[mk];var d=student[mk];if(!d)return null;
+  if(d.mastered){
+    return{name:student.name,teacher:student.teacher,current:d.c,boy:d.b,growth:0,projected:d.c,cs:'on-track',ps:'on-track',delta:m.t!==null?d.c-m.t:null,mastered:true}}
+  var cur=m.cap!==null?Math.min(d.c,m.cap):d.c;var gr=cur-d.b;
+  var pr=m.t!==null?proj(d.b,cur,m.cap):null;
+  var s2=m.t!==null?(pr>=m.t?'on-track':'below'):'on-track';
+  var dl=m.t!==null?pr-m.t:null;
+  return{name:student.name,teacher:student.teacher,current:cur,boy:d.b,growth:gr,projected:pr,cs:s2,ps:s2,delta:dl,mastered:false}}
 
 function gradeStats(si,gk,mk){
-var m=GM[gk].metrics[mk];var students=SCHOOLS[si].students[gk];
-var all=students.map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
-if(!all.length)return{avg:0,avgGr:0,projMet:0,projPct:0,total:0};
-var avg=Math.round(all.reduce(function(a,d){return a+d.current},0)/all.length);
-// Exclude mastered students from average growth: they didn't need to grow
-// (BOY was already at or above target), so including 0s would drag the
-// average down and misrepresent the working students' progress.
-var working=all.filter(function(d){return !d.mastered});
-var avgGr=working.length?Math.round(working.reduce(function(a,d){return a+d.growth},0)/working.length):0;
-var projMet=m.t!==null?all.filter(function(d){return d.projected>=m.t}).length:0;
-var projPct=m.t!==null?Math.round(projMet/all.length*100):0;
-return{avg:avg,avgGr:avgGr,projMet:projMet,projPct:projPct,total:all.length}}
+  var m=GM[gk].metrics[mk];var students=SCHOOLS[si].students[gk];
+  var all=students.map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
+  if(!all.length)return{avg:0,avgGr:0,projMet:0,projPct:0,total:0};
+  var avg=Math.round(all.reduce(function(a,d){return a+d.current},0)/all.length);
+  var working=all.filter(function(d){return !d.mastered});
+  var avgGr=working.length?Math.round(working.reduce(function(a,d){return a+d.growth},0)/working.length):0;
+  var projMet=m.t!==null?all.filter(function(d){return d.projected>=m.t}).length:0;
+  var projPct=m.t!==null?Math.round(projMet/all.length*100):0;
+  return{avg:avg,avgGr:avgGr,projMet:projMet,projPct:projPct,total:all.length}}
 
 function schoolGrades(si){return GKS.filter(function(gk){return SCHOOLS[si].students[gk].length>0})}
 
 function schoolStats(si){
-// "Projected to meet target" uses one representative metric per grade
-// (DMET: PA for K, WCPM for 1st and 2nd) so each student is counted once.
-var total=0,pm=0,pt=0;
-schoolGrades(si).forEach(function(gk){
-var s=gradeStats(si,gk,DMET[gk]);
-pm+=s.projMet;pt+=s.total;
-total+=SCHOOLS[si].students[gk].length;
-});
-return{total:total,projMet:pm,projTot:pt,projPct:pt?Math.round(pm/pt*100):0}}
+  var total=0,pm=0,pt=0;
+  schoolGrades(si).forEach(function(gk){
+    var s=gradeStats(si,gk,DMET[gk]);
+    pm+=s.projMet;pt+=s.total;
+    total+=SCHOOLS[si].students[gk].length;
+  });
+  return{total:total,projMet:pm,projTot:pt,projPct:pt?Math.round(pm/pt*100):0}}
 
-function gradeOverallStats(si,gk){
-var keys=Object.keys(GM[gk].metrics).filter(function(mk){return GM[gk].metrics[mk].key});
-var pm=0,pt=0,tgr=0,gc=0;
-keys.forEach(function(mk){
-var s=gradeStats(si,gk,mk);pm+=s.projMet;pt+=s.total;tgr+=s.avgGr;gc++;
-});
-return{projPct:pt?Math.round(pm/pt*100):0,avgGr:gc?Math.round(tgr/gc):0}}
-
+/* =========================================================================
+ * VIEW: DISTRICT
+ * ========================================================================= */
 function renderDistrict(){
-var app=document.getElementById('app');
-var total=0,allPm=0,allPt=0,totalSeats=0;
-SCHOOLS.forEach(function(sch,i){
-var ss=schoolStats(i);total+=ss.total;allPm+=ss.projMet;allPt+=ss.projTot;totalSeats+=sch.seats;
-});
-var pct=allPt?Math.round(allPm/allPt*100):0;
-var gTotals={k:0,g1:0,g2:0};SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){gTotals[gk]+=sch.students[gk].length})});
-var h='<div class="view-head"><div class="view-title">'+DISTRICT_NAME+'</div>'+seatsBlock(totalSeats)+'</div><div class="sub-counts"><span>'+total+' students</span>';
-GKS.forEach(function(gk){if(gTotals[gk]>0)h+='<span>'+gTotals[gk]+' '+GM[gk].plural+'</span>'});
-h+='</div>';
-var dScope=[];SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){sch.students[gk].forEach(function(s){dScope.push({student:s,gk:gk})})})});
-var dCs=calloutFor(dScope,['wcpm','hfw']);
-var dPers=dScope.length?'Your students have made <b>'+dCs.avgMonths+' months</b> of progress so far this year, reading <b>'+dCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
-h+=calloutHtml(dPers);
-h+=metricCards(dScope);
+  var app=document.getElementById('app');
+  var total=0,allPm=0,allPt=0,totalSeats=0;
+  SCHOOLS.forEach(function(sch,i){
+    var ss=schoolStats(i);total+=ss.total;allPm+=ss.projMet;allPt+=ss.projTot;totalSeats+=sch.seats;
+  });
+  var gTotals={k:0,g1:0,g2:0};
+  SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){gTotals[gk]+=sch.students[gk].length})});
 
-SCHOOLS.forEach(function(sch,i){
-var ss=schoolStats(i);
-var schAllScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schAllScope.push({student:s,gk:gk})})});
-var schMonths=avgMopFor(schAllScope);
-var schWcpm=metricAgg(schAllScope,'wcpm');
-var schHfw=metricAgg(schAllScope,'hfw');
-h+='<div class="gc" onclick="navTo(\'school\','+i+')"><div class="gc-head"><div><span class="gc-name">'+sch.name+'</span><span class="gc-count">'+ss.total+' students</span></div><i class="ti ti-chevron-right gc-arrow" aria-hidden="true"></i></div><div class="gc-metrics">';
-h+=renderMonthsChart(schMonths);
-h+=renderMetricChart(schWcpm,'Words correct per minute');
-h+=renderMetricChart(schHfw,'High-frequency words');
-h+='</div></div>';
-});
-app.innerHTML=h}
+  var h='<div class="page-header-sticky"><div class="report-eyebrow">Reports · Student Progress</div><div class="report-header"><div class="view-head"><div><h1 class="view-title">'+DISTRICT_NAME+'</h1><p class="view-subtitle">'+SCHOOLS.length+' schools · K–2 reading progress</p></div>'+seatsBlock(totalSeats)+'</div>';
+  h+='<div class="sub-counts"><span><strong>'+total+'</strong> students</span>';
+  GKS.forEach(function(gk){if(gTotals[gk]>0)h+='<span><strong>'+gTotals[gk]+'</strong> '+GM[gk].plural+'</span>'});
+  h+='</div></div></div>';
 
+  var dScope=[];SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){sch.students[gk].forEach(function(s){dScope.push({student:s,gk:gk})})})});
+  var dCs=calloutFor(dScope,['wcpm','hfw']);
+  var dPers=dScope.length?'Your students have made <b>'+dCs.avgMonths+' months</b> of progress so far this year, reading <b>'+dCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
+  h+=calloutHtml(dPers);
+  h+=metricCards(dScope);
+  h+=chartLegend();
+
+  // Render schools alphabetically; preserve the original index (si) so navigation,
+  // state, and per-school seeds stay stable.
+  var orderedSchools = SCHOOLS.map(function(sch,i){return{sch:sch,si:i}})
+    .sort(function(a,b){return a.sch.name.localeCompare(b.sch.name)});
+  orderedSchools.forEach(function(item){
+    var sch=item.sch, i=item.si;
+    var ss=schoolStats(i);
+    var schAllScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schAllScope.push({student:s,gk:gk})})});
+    var schMonths=avgMopFor(schAllScope);
+    var schWcpm=metricAgg(schAllScope,'wcpm');
+    var schHfw=metricAgg(schAllScope,'hfw');
+    // Count line: total + per-grade breakdown. Label-first format
+    // ("K: 11" not "11 K") so the labels act as fixed anchors and the
+    // eye can jump straight to a value. Bold numbers mirror the
+    // page-level sub-counts pattern and give the values visual weight.
+    // Grades with 0 students are skipped (e.g. Jefferson has no K).
+    var countParts=['<strong>'+ss.total+'</strong> students'];
+    GKS.forEach(function(gk){
+      var n=sch.students[gk].length;
+      if(n>0){
+        var label=gk==='k'?'K':(gk==='g1'?'1st':'2nd');
+        countParts.push(label+': <strong>'+n+'</strong>');
+      }
+    });
+    var countStr=countParts.join(' · ');
+    h+='<div class="gc" role="button" tabindex="0" onclick="navTo(\'school\','+i+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navTo(\'school\','+i+')}">';
+    h+='<div class="gc-head"><div class="gc-titles"><div class="gc-name">'+sch.name+'</div><div class="gc-count">'+countStr+'</div></div>'+ICON_CHEVRON_R.replace('aria-hidden="true"','class="gc-arrow" aria-hidden="true"')+'</div><div class="gc-metrics">';
+    h+=renderMonthsChart(schMonths);
+    h+=renderMetricChart(schWcpm,'Words Correct per Minute');
+    h+=renderMetricChart(schHfw,'High-Frequency Words');
+    h+='</div></div>';
+  });
+  app.innerHTML=h;
+}
+
+/* =========================================================================
+ * VIEW: SCHOOL
+ * ========================================================================= */
 function renderSchool(si){
-var app=document.getElementById('app');
-var sch=SCHOOLS[si];var ss=schoolStats(si);
-var h='<button class="back-btn" onclick="navTo(\'district\')"><i class="ti ti-arrow-left" style="font-size:14px" aria-hidden="true"></i> '+DISTRICT_NAME+'</button>';
-h+='<div class="view-head"><div class="view-title">'+sch.name+'</div>'+seatsBlock(sch.seats)+'</div>';
-var sg=schoolGrades(si);
-h+='<div class="sub-counts"><span>'+ss.total+' students</span>';
-sg.forEach(function(gk){h+='<span>'+sch.students[gk].length+' '+GM[gk].plural+'</span>'});
-h+='</div>';
-var schScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schScope.push({student:s,gk:gk})})});
-var schCs=calloutFor(schScope,['wcpm','hfw']);
-var schPers=schScope.length?'Your students have made <b>'+schCs.avgMonths+' months</b> of progress so far this year, reading <b>'+schCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
-h+=calloutHtml(schPers);
-h+=metricCards(schScope);
+  var app=document.getElementById('app');
+  var sch=SCHOOLS[si];var ss=schoolStats(si);
+  var h='<div class="page-header-sticky"><div class="report-eyebrow">Reports · Student Progress</div><div class="report-header"><button class="back-btn" onclick="navTo(\'district\')">'+ICON_ARROW_LEFT+' '+DISTRICT_NAME+'</button>';
+  h+='<div class="view-head"><div><h1 class="view-title">'+sch.name+'</h1><p class="view-subtitle">School-level reading progress</p></div>'+seatsBlock(sch.seats)+'</div>';
+  var sg=schoolGrades(si);
+  h+='<div class="sub-counts"><span><strong>'+ss.total+'</strong> students</span>';
+  sg.forEach(function(gk){h+='<span><strong>'+sch.students[gk].length+'</strong> '+GM[gk].plural+'</span>'});
+  h+='</div></div></div>';
 
-sg.forEach(function(gk){
-var g=GM[gk];
-var gScope=sch.students[gk].map(function(s){return{student:s,gk:gk}});
-var gMonths=avgMopFor(gScope);
-var gWcpm=metricAgg(gScope,'wcpm');
-var gHfw=metricAgg(gScope,'hfw');
-h+='<div class="gc" onclick="navTo(\'grade\','+si+',\''+gk+'\')"><div class="gc-head"><div><span class="gc-name">'+g.name+'</span><span class="gc-count">'+sch.students[gk].length+' students</span></div><i class="ti ti-chevron-right gc-arrow" aria-hidden="true"></i></div><div class="gc-metrics">';
-h+=renderMonthsChart(gMonths);
-h+=renderMetricChart(gWcpm,'Words correct per minute');
-h+=renderMetricChart(gHfw,'High-frequency words');
-h+='</div></div>';
-});
-app.innerHTML=h}
+  var schScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schScope.push({student:s,gk:gk})})});
+  var schCs=calloutFor(schScope,['wcpm','hfw']);
+  var schPers=schScope.length?'Your students have made <b>'+schCs.avgMonths+' months</b> of progress so far this year, reading <b>'+schCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
+  h+=calloutHtml(schPers);
+  h+=metricCards(schScope);
+  h+=chartLegend();
 
+  sg.forEach(function(gk){
+    var g=GM[gk];
+    var gScope=sch.students[gk].map(function(s){return{student:s,gk:gk}});
+    var gMonths=avgMopFor(gScope);
+    var gWcpm=metricAgg(gScope,'wcpm');
+    var gHfw=metricAgg(gScope,'hfw');
+    h+='<div class="gc" role="button" tabindex="0" onclick="navTo(\'grade\','+si+',\''+gk+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navTo(\'grade\','+si+',\''+gk+'\')}">';
+    h+='<div class="gc-head"><div><span class="gc-name">'+g.name+'</span><span class="gc-count">'+sch.students[gk].length+' students</span></div>'+ICON_CHEVRON_R.replace('aria-hidden="true"','class="gc-arrow" aria-hidden="true"')+'</div><div class="gc-metrics">';
+    h+=renderMonthsChart(gMonths);
+    h+=renderMetricChart(gWcpm,'Words Correct per Minute');
+    h+=renderMetricChart(gHfw,'High-Frequency Words');
+    h+='</div></div>';
+  });
+  app.innerHTML=h;
+}
+
+/* =========================================================================
+ * VIEW: GRADE (student table)
+ * ========================================================================= */
 function renderGrade(si,gk){
-var app=document.getElementById('app');
-var sch=SCHOOLS[si];var g=GM[gk];var mk=st.gm[si][gk];var m=g.metrics[mk];var hasTarget=m.t!==null;
-var keys=Object.keys(g.metrics);
-var data=sch.students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
+  var app=document.getElementById('app');
+  var sch=SCHOOLS[si];var g=GM[gk];var mk=st.gm[si][gk];var m=g.metrics[mk];var hasTarget=m.t!==null;
+  var keys=Object.keys(g.metrics);
+  var data=sch.students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
 
-var h='<button class="back-btn" onclick="navTo(\'school\','+si+')"><i class="ti ti-arrow-left" style="font-size:14px" aria-hidden="true"></i> '+sch.name+'</button>';
-h+='<div class="view-title">'+sch.name+' — '+g.name+'</div>';
-h+='<div class="sub-counts"><span>'+data.length+' '+g.plural+'</span></div>';
-var gScope=sch.students[gk].map(function(s){return{student:s,gk:gk}});
-var gCs=calloutFor(gScope,['wcpm','hfw']);
-var gPers;
-if(gScope.length===0){gPers='';}
-else{var gLabel=gk==='k'?'kindergartners':(gk==='g1'?'1st graders':'2nd graders');gPers='Your '+gLabel+' have made <b>'+gCs.avgMonths+' months</b> of progress so far this year, reading <b>'+gCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
-h+=calloutHtml(gPers);
-h+=metricCards(gScope);
+  var h='<div class="page-header-sticky"><div class="report-eyebrow">Reports · Student Progress</div><div class="report-header"><button class="back-btn" onclick="navTo(\'school\','+si+')">'+ICON_ARROW_LEFT+' '+sch.name+'</button>';
+  h+='<div class="view-head"><div><h1 class="view-title">'+sch.name+' — '+g.name+'</h1><p class="view-subtitle">Student-level reading progress</p></div></div>';
+  h+='<div class="sub-counts"><span><strong>'+data.length+'</strong> '+g.plural+'</span></div></div></div>';
 
-h+='<div class="controls-row"><div class="controls-buttons">';
-keys.forEach(function(k){var mi=g.metrics[k];h+='<button class="tb'+(k===mk?' active':'')+'" data-mk="'+k+'" data-si="'+si+'" data-gk="'+gk+'">'+mi.n+'</button>'});
-h+='</div>';
-h+='<select class="controls-select" id="metricSelect" aria-label="Choose metric">';
-keys.forEach(function(k){var mi=g.metrics[k];h+='<option value="'+k+'"'+(k===mk?' selected':'')+'>'+mi.n+'</option>'});
-h+='</select>';
-h+='</div>';
+  var gScope=sch.students[gk].map(function(s){return{student:s,gk:gk}});
+  var gCs=calloutFor(gScope,['wcpm','hfw']);
+  var gPers;
+  if(gScope.length===0){gPers='';}
+  else{var gLabel=gk==='k'?'kindergartners':(gk==='g1'?'1st graders':'2nd graders');gPers='Your '+gLabel+' have made <b>'+gCs.avgMonths+' months</b> of progress so far this year, reading <b>'+gCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
+  h+=calloutHtml(gPers);
+  h+=metricCards(gScope);
 
-h+='<div class="legend"><div class="legend-item"><div class="ld" style="background:#639922"></div> On track</div><div class="legend-item"><div class="ld" style="background:#E24B4A"></div> Below target</div>';
-if(hasTarget)h+='<div class="legend-item" style="margin-left:8px"><div class="ll" style="background:var(--color-text-secondary)"></div> EOY target</div><div class="legend-item"><div class="ls"></div> Projected growth</div>';
-h+='</div>';
+  // Toolbar wraps the metric toggles + legend so they pin together under the page header.
+  h+='<div class="grade-toolbar">';
+  h+='<div class="controls-row" role="tablist" aria-label="Metric"><div class="controls-buttons">';
+  keys.forEach(function(k){var mi=g.metrics[k];h+='<button class="tb'+(k===mk?' active':'')+'" role="tab" aria-selected="'+(k===mk?'true':'false')+'" data-mk="'+k+'" data-si="'+si+'" data-gk="'+gk+'">'+mi.n+'</button>'});
+  h+='</div>';
+  h+='<select class="controls-select" id="metricSelect" aria-label="Choose metric">';
+  keys.forEach(function(k){var mi=g.metrics[k];h+='<option value="'+k+'"'+(k===mk?' selected':'')+'>'+mi.n+'</option>'});
+  h+='</select>';
+  h+='</div>';
 
-var cN=hasTarget?'11%':'17%',cT=hasTarget?'9%':'13%',cS='8%',cCu='8%',cCh=hasTarget?'18%':'32%',cG='10%',cP='13%',cD='13%';
-h+='<div class="tc"><table><thead><tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cCu+';text-align:right" data-sort="current">Current <span class="sa">&#9650;</span></th><th class="ch" style="width:'+cCh+'"></th><th style="width:'+cG+'" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
-if(hasTarget)h+='<th style="width:'+cP+'" data-sort="projected">Projected EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+'" data-sort="delta">vs. EOY target <span class="sa">&#9650;</span></th>';
-h+='</tr></thead><tbody id="tb"></tbody></table></div>';
-app.innerHTML=h;
-bindGradeEvents(si,gk);
-renderRows(si,gk)}
+  h+=chartLegend();
+  h+='</div>'; // /.grade-toolbar
+
+  // Build thead HTML once — reused in both the sticky fake-header and the real table.
+  // Both have the same width constraints (width: 100%; min-width: 1000px) and column
+  // widths, so their cells align column-for-column.
+  // Rebalance: name & bar do the most work; numeric columns trim to fit content.
+  var cN=hasTarget?'20%':'22%',cT=hasTarget?'13%':'15%',cS='6%',cCu='7%',cCh=hasTarget?'22%':'37%',cG='7%',cP='13%',cD='12%';
+  var theadInner='<tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cCu+';text-align:right" data-sort="current">Current <span class="sa">&#9650;</span></th><th style="width:'+cCh+'" aria-label="Progress"></th><th style="width:'+cG+';text-align:right" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
+  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Projected EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+';text-align:right" data-sort="delta">vs. Target <span class="sa">&#9650;</span></th>';
+  theadInner+='</tr>';
+
+  // Sticky fake-header — pinned to viewport, overlaps real thead at scroll=0.
+  h+='<div class="sticky-thead" id="sticky-thead" aria-hidden="true">';
+  h+='<div class="sticky-thead-scroll" id="sticky-thead-scroll">';
+  h+='<table class="sticky-thead-table"><thead>'+theadInner+'</thead></table>';
+  h+='</div></div>';
+
+  // Real table — its <thead> stays for semantics; visually overlapped by sticky-thead.
+  h+='<div class="table-wrap" id="table-wrap"><table>';
+  h+='<thead>'+theadInner+'</thead><tbody id="tb"></tbody></table></div>';
+  app.innerHTML=h;
+  bindGradeEvents(si,gk);
+  renderRows(si,gk);
+}
 
 function renderRows(si,gk){
-var mk=st.gm[si][gk];var m=GM[gk].metrics[mk];var hasTarget=m.t!==null;
-var data=SCHOOLS[si].students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
-data.sort(function(a,b){
-// Mastered students always group at the bottom regardless of column sort.
-if(a.mastered!==b.mastered)return a.mastered?1:-1;
-var va=a[st.sort],vb=b[st.sort];
-if(typeof va==='string'){va=va.toLowerCase();vb=vb.toLowerCase()}
-if(va<vb)return st.asc?-1:1;
-if(va>vb)return st.asc?1:-1;
-return 0
-});
-var tPct=hasTarget?Math.round(m.t/m.mx*100):0;
-var rows='';
-data.forEach(function(d){
-if(d.mastered){
-var nCols=hasTarget?6:4;
-rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
-rows+='<td colspan="'+nCols+'" class="mastered-cell">Mastered at initial assessment</td>';
-rows+='</tr>';
-return;
+  var mk=st.gm[si][gk];var m=GM[gk].metrics[mk];var hasTarget=m.t!==null;
+  var data=SCHOOLS[si].students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
+  data.sort(function(a,b){
+    if(a.mastered!==b.mastered)return a.mastered?1:-1;
+    var va=a[st.sort],vb=b[st.sort];
+    if(typeof va==='string'){va=va.toLowerCase();vb=vb.toLowerCase()}
+    if(va<vb)return st.asc?-1:1;
+    if(va>vb)return st.asc?1:-1;
+    return 0;
+  });
+  var tPct=hasTarget?Math.round(m.t/m.mx*100):0;
+  var rows='';
+  data.forEach(function(d){
+    if(d.mastered){
+      var nCols=hasTarget?6:4;
+      rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
+      rows+='<td colspan="'+nCols+'" class="mastered-cell"><span class="mast-icon">'+ICON_CHECK+' Mastered at initial assessment</span></td>';
+      rows+='</tr>';
+      return;
+    }
+    var bPct=Math.max(0,Math.min(100,Math.round(d.boy/m.mx*100)));
+    var cPct=Math.min(100,Math.round(d.current/m.mx*100));
+    var pPct=hasTarget?Math.min(100,Math.round(d.projected/m.mx*100)):0;
+    var gSign=d.growth>=0?'+':'';var gCl=d.growth>=0?'pos':'neg';
+    var bCol=statusBarColor(d.cs);
+    rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
+    rows+='<td class="bv">'+d.boy+'</td>';
+    rows+='<td class="cv">'+d.current+'</td>';
+    rows+='<td><div class="bb">';
+    if(hasTarget&&pPct>cPct)rows+='<div class="bp" style="left:'+cPct+'%;width:'+(pPct-cPct)+'%"><div class="bp-i" style="background:'+slBg(bCol)+'"></div></div>';
+    rows+='<div class="bf" style="left:'+bPct+'%;width:'+Math.max(0,cPct-bPct)+'%;background:'+bCol+'"></div>';
+    rows+='<div class="bs" style="left:'+bPct+'%;border-color:'+bCol+'"></div>';
+    if(hasTarget)rows+='<div class="bl" style="left:'+tPct+'%"></div>';
+    rows+='</div></td>';
+    rows+='<td style="text-align:right"><span class="gv '+gCl+'">'+gSign+d.growth+'</span></td>';
+    if(hasTarget){
+      var psCl=d.ps==='on-track'?'on-track':'below';
+      var psIcon=d.ps==='on-track'?ICON_CHECK:ICON_WARN;
+      var dSign=d.delta>=0?'+':'';var dCl=d.delta>=0?'pos':'neg';
+      rows+='<td style="text-align:right"><span class="pc '+psCl+'"><span class="pc-status">'+psIcon+'</span>'+d.projected+'</span></td>';
+      rows+='<td class="dc '+dCl+'" style="text-align:right">'+dSign+d.delta+'</td>';
+    }
+    rows+='</tr>';
+  });
+  document.getElementById('tb').innerHTML=rows;
+  document.querySelectorAll('th').forEach(function(th){
+    th.classList.toggle('sorted',th.dataset.sort===st.sort);
+    var a=th.querySelector('.sa');
+    if(a)a.innerHTML=(th.dataset.sort===st.sort&&!st.asc)?'&#9660;':'&#9650;';
+  });
 }
-var bPct=Math.max(0,Math.min(100,Math.round(d.boy/m.mx*100)));
-var cPct=Math.min(100,Math.round(d.current/m.mx*100));
-var pPct=hasTarget?Math.min(100,Math.round(d.projected/m.mx*100)):0;
-var gSign=d.growth>=0?'+':'';var gCl=d.growth>=0?'pos':'neg';
-var bCol=sc(d.cs);
-rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
-rows+='<td class="bv">'+d.boy+'</td>';
-rows+='<td class="cv">'+d.current+'</td>';
-rows+='<td class="ch"><div class="bb">';
-if(hasTarget&&pPct>cPct)rows+='<div class="bp" style="left:'+cPct+'%;width:'+(pPct-cPct)+'%"><div class="bp-i" style="background:'+slBg(bCol)+'"></div></div>';
-rows+='<div class="bf" style="left:'+bPct+'%;width:'+(cPct-bPct)+'%;background:'+bCol+'"></div>';
-rows+='<div class="bs" style="left:'+bPct+'%;border-color:'+bCol+'"></div>';
-if(hasTarget)rows+='<div class="bl" style="left:'+tPct+'%"></div>';
-rows+='</div></td>';
-rows+='<td><span class="gv '+gCl+'">'+gSign+d.growth+'</span></td>';
-if(hasTarget){var pCol=sc(d.ps);var dSign=d.delta>=0?'+':'';var dCl=d.delta>=0?'pos':'neg';
-rows+='<td class="pc"><span class="ps" style="background:'+pCol+'"></span>'+d.projected+'</td>';
-rows+='<td class="dc '+dCl+'">'+dSign+d.delta+'</td>'}
-rows+='</tr>'});
-document.getElementById('tb').innerHTML=rows;
-document.querySelectorAll('th').forEach(function(th){th.classList.toggle('sorted',th.dataset.sort===st.sort);var a=th.querySelector('.sa');if(a)a.innerHTML=(th.dataset.sort===st.sort&&!st.asc)?'&#9660;':'&#9650;'})}
 
 function bindGradeEvents(si,gk){
-document.querySelectorAll('.tb').forEach(function(btn){btn.addEventListener('click',function(){st.gm[si][gk]=btn.dataset.mk;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)})});
-var sel=document.getElementById('metricSelect');
-if(sel)sel.addEventListener('change',function(){st.gm[si][gk]=sel.value;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)});
-document.querySelectorAll('th[data-sort]').forEach(function(th){th.addEventListener('click',function(){var col=th.dataset.sort;if(st.sort===col)st.asc=!st.asc;else{st.sort=col;st.asc=true}renderRows(si,gk)})})}
+  document.querySelectorAll('.tb').forEach(function(btn){
+    btn.addEventListener('click',function(){st.gm[si][gk]=btn.dataset.mk;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)});
+  });
+  var sel=document.getElementById('metricSelect');
+  if(sel)sel.addEventListener('change',function(){st.gm[si][gk]=sel.value;st.sort='name';st.asc=true;st.filter='all';renderGrade(si,gk)});
+  // Sort click handlers fire on both real and sticky thead cells (selector
+  // matches both). Whichever is on top intercepts the click; both update
+  // their sort arrows via the renderRows() loop over all <th>s.
+  document.querySelectorAll('th[data-sort]').forEach(function(th){
+    th.addEventListener('click',function(){var col=th.dataset.sort;if(st.sort===col)st.asc=!st.asc;else{st.sort=col;st.asc=true}renderRows(si,gk)});
+  });
+  // Sync horizontal scroll: when the user scrolls .table-wrap right, translate
+  // the sticky-thead's inner table left by the same amount so columns align.
+  var tw=document.getElementById('table-wrap');
+  var ss=document.getElementById('sticky-thead-scroll');
+  if(tw&&ss){
+    tw.addEventListener('scroll',function(){
+      ss.style.transform='translateX('+(-tw.scrollLeft)+'px)';
+    });
+  }
+}
 
 window.navTo=function(view,si,gk){
-st.view=view;st.si=si!==undefined?si:null;st.gk=gk||null;st.sort='name';st.asc=true;st.filter='all';render()};
+  st.view=view;st.si=si!==undefined?si:null;st.gk=gk||null;
+  st.sort='name';st.asc=true;st.filter='all';
+  render();
+  document.getElementById('main-content').scrollIntoView({behavior:'smooth',block:'start'});
+};
 
 function render(){
-if(st.view==='district')renderDistrict();
-else if(st.view==='school')renderSchool(st.si);
-else renderGrade(st.si,st.gk);
+  if(st.view==='district')renderDistrict();
+  else if(st.view==='school')renderSchool(st.si);
+  else renderGrade(st.si,st.gk);
+  applyStickyOffsets();
 }
+
+// Measure pinned-band heights and expose as CSS variables so subsequent
+// sticky layers (.grade-toolbar, .sticky-thead) can stack beneath them
+// without hardcoded pixel math. Also overlap the sticky-thead onto the
+// real thead via negative margin so we don't render two visible header
+// rows at scroll=0. Deferred to next frame so layout has settled.
+function applyStickyOffsets(){
+  requestAnimationFrame(function(){
+    var root=document.documentElement;
+    var hdr=document.querySelector('.page-header-sticky');
+    var hdrH=hdr?hdr.offsetHeight:150;
+    root.style.setProperty('--page-header-h',hdrH+'px');
+    var tb=document.querySelector('.grade-toolbar');
+    var tbH=tb?tb.offsetHeight:0;
+    root.style.setProperty('--toolbar-h',tbH+'px');
+    // Overlap sticky-thead onto the real thead in the table. At scroll=0
+    // the sticky-thead sits at its natural in-flow position; the negative
+    // margin pulls .table-wrap up by exactly the real thead's height so
+    // the two header rows occupy the same vertical band. The sticky-thead
+    // has higher z-index so the real thead is hidden beneath it.
+    var sticky=document.querySelector('.sticky-thead');
+    var realThead=document.querySelector('.table-wrap thead');
+    if(sticky&&realThead){
+      var th=realThead.offsetHeight;
+      if(th>0)sticky.style.marginBottom=(-th)+'px';
+    }
+  });
+}
+window.addEventListener('resize',function(){applyStickyOffsets();});
+
 render();
 
-// Data-freshness note: data refreshes at the top of every hour.
-(function(){var n=new Date();n.setMinutes(0,0,0);var t=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});var f=document.getElementById('app-footer');if(f)f.textContent='Data updates at the top of every hour (last updated '+t+'). Refresh the page to see new data.';})();
+/* Data-freshness footer */
+(function(){
+  var n=new Date();n.setMinutes(0,0,0);
+  var t=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  var f=document.getElementById('app-footer');
+  if(f)f.textContent='Data updates at the top of every hour · Last updated '+t+' · Refresh to see new data.';
+})();
+
+/* Re-render on color-scheme change so bar colors track the theme */
+if(window.matchMedia){
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');
+  if(mq.addEventListener)mq.addEventListener('change',render);
+  else if(mq.addListener)mq.addListener(render);
+}
 </script>
 </body>
 </html>
