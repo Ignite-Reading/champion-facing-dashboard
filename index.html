@@ -1435,11 +1435,17 @@ function bindGradeEvents(si,gk){
   });
   // Sync horizontal scroll: when the user scrolls .table-wrap right, translate
   // the sticky-thead's inner table left by the same amount so columns align.
+  // The sticky-thead's first cell (the Student column header) needs to STAY
+  // at viewport-left to mirror the body's sticky first column, so we counter-
+  // translate it by +scrollLeft to cancel out the parent's translation.
   var tw=document.getElementById('table-wrap');
   var ss=document.getElementById('sticky-thead-scroll');
+  var stickyFirstTh=ss?ss.querySelector('thead th:first-child'):null;
   if(tw&&ss){
     tw.addEventListener('scroll',function(){
-      ss.style.transform='translateX('+(-tw.scrollLeft)+'px)';
+      var x=tw.scrollLeft;
+      ss.style.transform='translateX('+(-x)+'px)';
+      if(stickyFirstTh)stickyFirstTh.style.transform='translateX('+x+'px)';
     });
   }
 }
