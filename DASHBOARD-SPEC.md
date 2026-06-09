@@ -24,25 +24,27 @@ All data is generated client-side using a seeded PRNG (mulberry32-style) so resu
 
 ### Grade configuration (`GM` object)
 
-All three grades have the same four metrics in the same order so the dashboard reads consistently as students progress. WCPM is the metric of truth across grades; PA and LNF stay available as foundational checks for students who haven't yet mastered them.
+All three grades have the same four metrics in the same order so the dashboard reads consistently as students progress. WCPM is the metric of truth across grades; NWF and LNF stay available as foundational checks for students who haven't yet mastered them.
 
-**Kindergarten** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (PA, LNF)
+**Kindergarten** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (NWF, LNF)
 - Words correct per minute: target 10, BOY benchmark 2, max 15, unit "WCPM"
 - High-frequency words: target 20, BOY benchmark 5, max 25, unit "high-frequency words"
-- Phonological awareness: target 35, BOY benchmark 14, max 45, unit "correct sound segments"
+- Nonsense word fluency: target 28, BOY benchmark 10, max 35, unit "correct letter sounds"
 - Letter naming fluency: target 42, BOY benchmark 17, max 55, unit "letters per minute"
 
-**1st Grade** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (PA, LNF)
+**1st Grade** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (NWF, LNF)
 - Words correct per minute: target 42, BOY benchmark 17, max 58, unit "WCPM"
 - High-frequency words: target 200, BOY benchmark 80, max 220, cap 200, unit "high-frequency words"
-- Phonological awareness: target 35, BOY benchmark 14, max 45 (most 1st graders enter already mastered)
+- Nonsense word fluency: target 58, BOY benchmark 27, max 75 (most 1st graders enter already mastered)
 - Letter naming fluency: target 42, BOY benchmark 17, max 55 (most 1st graders enter already mastered)
 
-**2nd Grade** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (PA, LNF)
+**2nd Grade** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (NWF, LNF)
 - Words correct per minute: target 90, BOY benchmark 40, max 110, unit "WCPM"
 - High-frequency words: target 200, BOY benchmark 120, max 220, cap 200, unit "high-frequency words"
-- Phonological awareness: target 35, BOY benchmark 14, max 45 (essentially all 2nd graders mastered)
+- Nonsense word fluency: target 75, BOY benchmark 54, max 100 (essentially all 2nd graders mastered)
 - Letter naming fluency: target 42, BOY benchmark 17, max 55 (essentially all 2nd graders mastered)
+
+Nonsense Word Fluency targets and BOY benchmarks are Acadience-typical defaults; the data team will confirm the production source values.
 
 Each metric has a `key` flag (1 = key metric used in aggregate calculations, 0 = supplementary). Metrics with `cap` cannot exceed that value (HFW caps at 200).
 
@@ -71,7 +73,7 @@ For each student, for each metric:
 
 Student names use full first + last name pairs drawn from `FN` and `LN` pools (e.g., "Alex Nguyen"), not initials.
 
-Mastery falls out of the BOY ranges: WCPM and HFW BOY ranges sit well below their targets (no mastery), while PA and LNF BOY ranges for 1st and 2nd grade sit at or above target for most students, so most upper-grade students are mastered on the foundational metrics.
+Mastery falls out of the BOY ranges: WCPM and HFW BOY ranges sit well below their targets (no mastery), while NWF and LNF BOY ranges for 1st and 2nd grade sit at or above target for most students, so most upper-grade students are mastered on the foundational metrics.
 
 ### Projection formula
 
@@ -201,7 +203,7 @@ All four metrics now have targets, so the table is always 8 columns.
 4. Projected growth zone: diagonal slash pattern (45deg repeating gradient, 2px stripes at 6px intervals) in the status color, extending from current to projected position
 5. Target marker: 2px wide, 20px tall tick mark at the target percentage, primary-text color
 
-**Metric toggle buttons** (grade view) — horizontal row of pill buttons inside the sticky toolbar band. Inactive state is a neutral chip (border, body text); active state fills brand-purple with white text. All four metrics are available on every grade view, always in the same order: Words correct per minute, High-frequency words, Phonological awareness, Letter naming fluency. WCPM is selected by default for every grade. Below 768px viewport, the buttons collapse into a `<select>` dropdown with the same order. `role="tablist"`; `aria-selected` reflects the active state.
+**Metric toggle buttons** (grade view) — horizontal row of pill buttons inside the sticky toolbar band. Inactive state is a neutral chip (border, body text); active state fills brand-purple with white text. All four metrics are available on every grade view, always in the same order: Words correct per minute, High-frequency words, Nonsense word fluency, Letter naming fluency. WCPM is selected by default for every grade. Below 768px viewport, the buttons collapse into a `<select>` dropdown with the same order. `role="tablist"`; `aria-selected` reflects the active state.
 
 **Mastery row treatment** — when a student is mastered on the currently-viewed metric, the row collapses the numeric and chart columns into a single italic "Mastered at initial assessment" cell preceded by a small green check icon. Student name and teacher columns remain. Mastered rows always group together at the bottom of the table regardless of which column is sorted, so working students cluster at the top where attention should go.
 
@@ -250,7 +252,7 @@ The student table always lives inside a horizontal-scroll wrapper (1000px min-wi
 2. **Status based on projected EOY, not current score.** A student could have a low current score but strong growth trajectory and still be "on track." This rewards growth.
 3. **Status is never carried by color alone.** A check or warning icon accompanies every status indicator (chart title, projected-EOY column) to satisfy WCAG 1.4.1.
 4. **Three aggregate charts per card.** District and school cards show months of growth, WCPM, and HFW side by side (3-across desktop, 2-across tablet, 1-across mobile), each aggregating real scores across all students in scope.
-5. **WCPM is the metric of truth.** Every grade exposes the same four metrics with WCPM as the default and the headline; PA and LNF are supplementary and mostly resolve to mastery for upper grades.
+5. **WCPM is the metric of truth.** Every grade exposes the same four metrics with WCPM as the default and the headline; NWF and LNF are supplementary and mostly resolve to mastery for upper grades.
 6. **Mastery instead of emerging metrics.** All four metrics have targets. Students who began at or above a target are "mastered" and shown as a single row rather than a score.
 7. **Sticky context bands.** The page header, grade-view toolbar, and table thead stack as sticky layers so the user keeps title, scope, controls, and column labels in view while scanning long content.
 8. **Schools sort alphabetically.** District view orders schools A-Z while preserving each school's original index (so per-school seeds and deep links stay stable).
