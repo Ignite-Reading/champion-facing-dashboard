@@ -6,3 +6,4 @@ student-progress-metrics.xlsx
 # Local dev / OS artifacts
 .claude/
 .DS_Store
+scope-sequence.pdf
