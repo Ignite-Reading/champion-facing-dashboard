@@ -265,7 +265,7 @@ A single `index.html` file. Inline `<style>` for all CSS (with IRDL tokens), inl
 
 ## Getting started
 
-The prototype lives at [github.com/chris-geiser/student-progress-dashboard](https://github.com/chris-geiser/student-progress-dashboard) and is deployed via GitHub Pages at [chris-geiser.github.io/student-progress-dashboard](https://chris-geiser.github.io/student-progress-dashboard/). Open `index.html` directly in a browser or visit the Pages URL. No build step required.
+The prototype lives at [github.com/Ignite-Reading/champion-facing-dashboard](https://github.com/Ignite-Reading/champion-facing-dashboard) and is deployed via GitHub Pages at [ignite-reading.github.io/champion-facing-dashboard](https://ignite-reading.github.io/champion-facing-dashboard/). Open `index.html` directly in a browser or visit the Pages URL. No build step required.
 
 ## What's next (not yet built)
 
