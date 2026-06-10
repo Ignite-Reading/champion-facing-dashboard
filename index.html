@@ -759,70 +759,6 @@ tbody tr:hover td.sn {
 }
 .mastered-cell .mast-icon svg { width: 14px; height: 14px; }
 
-/* ========= ADDITIONAL GROWTH VIEW =========
-   The continuum band sits in its own table cell, alongside text columns
-   (Today's skill, Reading level, Gap closed/remaining). Same sticky-thead
-   and sticky-Student-column mechanics as the other student-level views. */
-.add-table-wrap table { min-width: 1100px; }
-
-/* Continuum band: 3 brand-tinted skill segments behind a status-colored
-   growth fill, projected-slash zone, grade-level benchmark tick, and three
-   journey markers (start / current / projected). */
-.cont-bar {
-  position: relative;
-  height: 18px;
-  background: var(--bg-sunken);
-  border-radius: 9px;
-  overflow: visible;
-  min-width: 200px;
-}
-.cont-band {
-  position: absolute; top: 0; height: 100%; z-index: 0;
-}
-.cont-band-k { background: #F7F4FA; border-radius: 9px 0 0 9px; }
-.cont-band-1 { background: #E5D9EF; }
-.cont-band-2 { background: #C7B0E0; border-radius: 0 9px 9px 0; }
-.cont-growth {
-  position: absolute; top: 0; height: 100%; z-index: 2;
-  border-radius: 9px 0 0 9px;
-}
-.cont-proj-fill {
-  position: absolute; top: 0; height: 100%; z-index: 1; overflow: hidden;
-}
-.cont-proj-i { width: 100%; height: 100%; }
-.cont-target {
-  position: absolute; top: -4px; height: 26px; width: 2px;
-  border-radius: 1px; background: var(--text-primary); z-index: 4;
-}
-.cont-mark {
-  position: absolute; top: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  border: 2px solid; /* color set inline */
-  z-index: 5;
-  background: var(--bg-surface);
-}
-.cont-curr { /* background set inline to the status color */ }
-.cont-start, .cont-proj-mark { /* white-bg, status-color border */ }
-
-/* Text columns */
-.day-skill {
-  font-size: 13px; line-height: 1.4; color: var(--text-primary);
-  white-space: normal;
-}
-.reading-level {
-  font-size: 12px; line-height: 1.5; color: var(--text-primary);
-}
-.reading-level .rl-label {
-  display: inline-block; min-width: 50px;
-  color: var(--text-secondary); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px;
-  margin-right: 4px;
-}
-.gap-closed { font-weight: 600; white-space: nowrap; }
-.gap-remaining { font-weight: 600; color: var(--text-body); white-space: nowrap; }
-
 /* ========= RESPONSIVE ========= */
 @media (max-width: 1024px) {
   :root { --sidebar-w: 72px; }
@@ -1244,168 +1180,6 @@ function chartLegend(){
     +'</div>';
 }
 
-/* =========================================================================
- * ADDITIONAL GROWTH VIEW — placeholder mappings, pending data team
- * confirmation. Partner-facing labels only (internal protocol names omitted
- * per Ignite training guidance). The 13 CURRICULUM stages are derived from
- * the Instructional Scope and Sequence (March 2025) competencies.
- * ========================================================================= */
-var CURRICULUM = [
-  { label:'Letter names and sounds',                                    wcpmMin:0   },
-  { label:'Sounding out short-vowel words',                             wcpmMin:3   },
-  { label:'Word patterns (onsets and rimes)',                           wcpmMin:8   },
-  { label:'Consonant blends and digraphs',                              wcpmMin:15  },
-  { label:'R-controlled vowels',                                        wcpmMin:22  },
-  { label:'Silent-e words',                                             wcpmMin:30  },
-  { label:'Long vowel teams',                                           wcpmMin:38  },
-  { label:'Compound words, prefixes, suffixes',                         wcpmMin:48  },
-  { label:'Prefixes and suffixes',                                      wcpmMin:60  },
-  { label:'Syllable types (closed, open, silent-e)',                    wcpmMin:72  },
-  { label:'R-controlled, vowel-team, and consonant-le syllables',       wcpmMin:82  },
-  { label:'Word endings (-s, -ing, -ed)',                               wcpmMin:92  },
-  { label:'Accents and schwas in multisyllabic words',                  wcpmMin:100 }
-];
-function dayStage(wcpm){
-  for(var i=CURRICULUM.length-1;i>=0;i--){
-    if(wcpm>=CURRICULUM[i].wcpmMin)return CURRICULUM[i].label;
-  }
-  return CURRICULUM[0].label;
-}
-
-var READER_TYPES = [
-  { label:'Pre-Reader',                  min:0   },
-  { label:'Word Reader',                 min:10  },
-  { label:'Fluent Reader',               min:40  },
-  { label:'Multisyllabic Fluent Reader', min:80  }
-];
-function readerType(wcpm){
-  for(var i=READER_TYPES.length-1;i>=0;i--){
-    if(wcpm>=READER_TYPES[i].min)return READER_TYPES[i].label;
-  }
-  return READER_TYPES[0].label;
-}
-
-// Shared WCPM axis for the continuum band. K Skills sit in 0-15, 1st Skills
-// 15-50, 2nd Skills 50-110. Matches the WCPM max scale used elsewhere.
-var BAND_AXIS_MAX = 110;
-var BAND_K_END = 15;
-var BAND_1_END = 50;
-
-// monthsToGradeLevel — months of growth still needed to project at/above the
-// grade WCPM target. Placeholder: divides remaining WCPM gap by an assumed
-// monthly growth rate (gradeTarget/MT). Real Ignite formula owned by data team.
-function monthsToGradeLevel(projectedWcpm, gradeWcpmTarget){
-  if(projectedWcpm>=gradeWcpmTarget)return 0;
-  var monthlyRate=gradeWcpmTarget/MT;
-  if(monthlyRate<=0)return 0;
-  return Math.ceil((gradeWcpmTarget-projectedWcpm)/monthlyRate);
-}
-
-// monthsClosed — months of growth made this year (BOY -> current), scaled
-// against the year-long ramp to the grade target. Reuses the same proxy as
-// the months-of-growth chart so the two numbers stay consistent.
-function monthsClosed(boyWcpm, currentWcpm, gradeWcpmTarget){
-  var m=mopStudent(boyWcpm,currentWcpm,gradeWcpmTarget,MT);
-  return m==null?0:Math.round(m);
-}
-
-function renderContinuumBand(bpPct, cpPct, ppPct, tpPct, statusCol, statusEdge){
-  var kEnd = BAND_K_END / BAND_AXIS_MAX * 100;
-  var firstEnd = BAND_1_END / BAND_AXIS_MAX * 100;
-  var h = '<div class="cont-bar" role="img" aria-label="Reading continuum band">';
-  // Skill band backgrounds (K / 1st / 2nd). Three colored segments.
-  h += '<div class="cont-band cont-band-k" style="left:0%;width:'+kEnd+'%"></div>';
-  h += '<div class="cont-band cont-band-1" style="left:'+kEnd+'%;width:'+(firstEnd-kEnd)+'%"></div>';
-  h += '<div class="cont-band cont-band-2" style="left:'+firstEnd+'%;width:'+(100-firstEnd)+'%"></div>';
-  // Growth fill (start -> current) and projected slash (current -> projected).
-  if(cpPct>bpPct)h+='<div class="cont-growth" style="left:'+bpPct+'%;width:'+(cpPct-bpPct)+'%;background:'+statusCol+'"></div>';
-  if(ppPct>cpPct)h+='<div class="cont-proj-fill" style="left:'+cpPct+'%;width:'+(ppPct-cpPct)+'%"><div class="cont-proj-i" style="background:'+slBg(statusCol)+'"></div></div>';
-  // Grade-level benchmark line (the goal post).
-  h+='<div class="cont-target" style="left:'+tpPct+'%"></div>';
-  // Markers: start (open circle), current (filled), projected (open with status border).
-  h+='<div class="cont-mark cont-start" style="left:'+bpPct+'%;border-color:'+statusEdge+'"></div>';
-  h+='<div class="cont-mark cont-curr" style="left:'+cpPct+'%;background:'+statusCol+';border-color:'+statusEdge+'"></div>';
-  h+='<div class="cont-mark cont-proj-mark" style="left:'+ppPct+'%;border-color:'+statusEdge+'"></div>';
-  h+='</div>';
-  return h;
-}
-
-function renderAdditionalGrowthTable(si, gk){
-  var sch = SCHOOLS[si]; var g = GM[gk];
-  var gradeWcpmTarget = g.metrics.wcpm.t;
-  var students = sch.students[gk];
-  var data = students.map(function(s){return gsd(s,gk,'wcpm');}).filter(Boolean);
-
-  // Default sort: mastered at bottom, then name ascending.
-  data.sort(function(a,b){
-    if(a.mastered!==b.mastered)return a.mastered?1:-1;
-    var na=a.name.toLowerCase(),nb=b.name.toLowerCase();
-    return na<nb?-1:na>nb?1:0;
-  });
-
-  // Columns: Student | Teacher | Today's skill | Continuum | Reading level | Gap closed | Gap remaining
-  var cN='14%', cT='10%', cSk='22%', cCh='28%', cRl='14%', cGc='6%', cGr='6%';
-  var theadInner = '<tr>'
-    +'<th style="width:'+cN+'">Student</th>'
-    +'<th style="width:'+cT+'">Teacher</th>'
-    +'<th style="width:'+cSk+'">Today\'s skill</th>'
-    +'<th style="width:'+cCh+'" aria-label="Reading continuum"></th>'
-    +'<th style="width:'+cRl+'">Reading level</th>'
-    +'<th style="width:'+cGc+';text-align:right">Gap closed</th>'
-    +'<th style="width:'+cGr+';text-align:right">Gap remaining</th>'
-    +'</tr>';
-
-  var h = '';
-  // Sticky fake-thead (mirrors the existing pattern) so the header pins below
-  // the page-header band as the user scrolls.
-  h += '<div class="sticky-thead" id="sticky-thead" aria-hidden="true">';
-  h += '<div class="sticky-thead-scroll" id="sticky-thead-scroll">';
-  h += '<table class="sticky-thead-table"><thead>'+theadInner+'</thead></table>';
-  h += '</div></div>';
-
-  h += '<div class="table-wrap add-table-wrap" id="table-wrap"><table>';
-  h += '<thead>'+theadInner+'</thead><tbody>';
-
-  data.forEach(function(d){
-    if(d.mastered){
-      h += '<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
-      h += '<td colspan="5" class="mastered-cell"><span class="mast-icon">'+ICON_CHECK+' On grade level — no gap remaining</span></td>';
-      h += '</tr>';
-      return;
-    }
-    var startLvl = readerType(d.boy);
-    var currLvl  = readerType(d.current);
-    var projLvl  = readerType(d.projected);
-    var stage    = dayStage(d.current);
-    var closed   = monthsClosed(d.boy, d.current, gradeWcpmTarget);
-    var remain   = monthsToGradeLevel(d.projected, gradeWcpmTarget);
-
-    var bp = Math.max(0, Math.min(100, d.boy       / BAND_AXIS_MAX * 100));
-    var cp = Math.max(0, Math.min(100, d.current   / BAND_AXIS_MAX * 100));
-    var pp = Math.max(0, Math.min(100, d.projected / BAND_AXIS_MAX * 100));
-    var tp = Math.max(0, Math.min(100, gradeWcpmTarget / BAND_AXIS_MAX * 100));
-    var col  = statusBarColor(d.cs);
-    var edge = statusBorderColor(d.cs);
-
-    h += '<tr>';
-    h += '<td class="sn">'+d.name+'</td>';
-    h += '<td class="tn">'+d.teacher+'</td>';
-    h += '<td class="day-skill" title="'+stage+'">'+stage+'</td>';
-    h += '<td class="continuum-cell">'+renderContinuumBand(bp,cp,pp,tp,col,edge)+'</td>';
-    h += '<td class="reading-level">'
-       + '<div><span class="rl-label">Started</span> '+startLvl+'</div>'
-       + '<div><span class="rl-label">Now</span> '+currLvl+'</div>'
-       + '<div><span class="rl-label">EOY</span> '+projLvl+'</div>'
-       + '</td>';
-    h += '<td class="gap-closed" style="text-align:right"><span class="pos">+'+closed+' mo.</span></td>';
-    h += '<td class="gap-remaining" style="text-align:right">'+(remain===0?'<span class="pos">On grade</span>':remain+' mo.')+'</td>';
-    h += '</tr>';
-  });
-
-  h += '</tbody></table></div>';
-  return h;
-}
-
 function gsd(student,gk,mk){
   var m=GM[gk].metrics[mk];var d=student[mk];if(!d)return null;
   if(d.mastered){
@@ -1538,16 +1312,13 @@ function renderSchool(si){
  * ========================================================================= */
 function renderGrade(si,gk){
   var app=document.getElementById('app');
-  var sch=SCHOOLS[si];var g=GM[gk];var mk=st.gm[si][gk];
-  var isAdd = mk==='add';
-  var m = isAdd ? null : g.metrics[mk];
-  var hasTarget = isAdd ? false : (m.t!==null);
+  var sch=SCHOOLS[si];var g=GM[gk];var mk=st.gm[si][gk];var m=g.metrics[mk];var hasTarget=m.t!==null;
   var keys=Object.keys(g.metrics);
-  var data = isAdd ? [] : sch.students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
+  var data=sch.students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
 
   var h='<div class="page-header-sticky"><div class="report-eyebrow">Reports · Student Progress</div><div class="report-header"><button class="back-btn" onclick="navTo(\'school\','+si+')">'+ICON_ARROW_LEFT+' '+sch.name+'</button>';
   h+='<div class="view-head"><div><h1 class="view-title">'+sch.name+' — '+g.name+'</h1><p class="view-subtitle">Student-level reading progress</p></div></div>';
-  h+='<div class="sub-counts"><span><strong>'+sch.students[gk].length+'</strong> '+g.plural+'</span></div></div></div>';
+  h+='<div class="sub-counts"><span><strong>'+data.length+'</strong> '+g.plural+'</span></div></div></div>';
 
   var gScope=sch.students[gk].map(function(s){return{student:s,gk:gk}});
   var gCs=calloutFor(gScope,['wcpm','hfw']);
@@ -1561,25 +1332,14 @@ function renderGrade(si,gk){
   h+='<div class="grade-toolbar">';
   h+='<div class="controls-row" role="tablist" aria-label="Metric"><div class="controls-buttons">';
   keys.forEach(function(k){var mi=g.metrics[k];h+='<button class="tb'+(k===mk?' active':'')+'" role="tab" aria-selected="'+(k===mk?'true':'false')+'" data-mk="'+k+'" data-si="'+si+'" data-gk="'+gk+'">'+mi.n+'</button>'});
-  // Additional Growth — special view mode (not a real metric). Same toggle UX.
-  h+='<button class="tb'+(isAdd?' active':'')+'" role="tab" aria-selected="'+(isAdd?'true':'false')+'" data-mk="add" data-si="'+si+'" data-gk="'+gk+'">Additional Growth</button>';
   h+='</div>';
   h+='<select class="controls-select" id="metricSelect" aria-label="Choose metric">';
   keys.forEach(function(k){var mi=g.metrics[k];h+='<option value="'+k+'"'+(k===mk?' selected':'')+'>'+mi.n+'</option>'});
-  h+='<option value="add"'+(isAdd?' selected':'')+'>Additional Growth</option>';
   h+='</select>';
   h+='</div>';
 
-  // Chart legend explains bar-status visuals; not relevant to the continuum view.
-  if(!isAdd)h+=chartLegend();
+  h+=chartLegend();
   h+='</div>'; // /.grade-toolbar
-
-  if(isAdd){
-    h += renderAdditionalGrowthTable(si, gk);
-    app.innerHTML = h;
-    bindGradeEvents(si, gk);
-    return;
-  }
 
   // Build thead HTML once — reused in both the sticky fake-header and the real table.
   // Both have the same width constraints (width: 100%; min-width: 1000px) and column
