@@ -50,7 +50,7 @@ Each metric has a `key` flag (1 = key metric used in aggregate calculations, 0 =
 
 **Mastery ("baselined higher").** If a student's BOY score for a metric is already at or above the EOY target, that student baselined above the goal during initial assessment. These students keep their BOY score as their current value, are never re-tested for ongoing progress on that metric, and appear in the grade-view student table as a single italic "Baselined higher at initial assessment" row (with a small check icon) in place of their numeric data. They count as on track for that metric, but contribute zero growth to the average-growth calculation. These rows always group at the bottom of the table regardless of sort column.
 
-**ORF screener readiness ("not yet at this level").** On the Oral Reading Fluency table only, a student whose BOY ORF baselines below the screener-readiness floor (`ORF_READINESS_FLOOR`, currently 10 — the Kindergarten Skills / basic-alphabet level) is not yet given the ORF passage screener. Their row collapses to a single italic "Student not yet at this level" cell (with a neutral seedling icon) in place of numeric data, mirroring the mastery treatment at the low end. These rows group just below the working students and above any baselined-higher rows. The floor is a placeholder pending data-team confirmation of the real readiness rule. Because every kindergartner baselines below 10, the entire K ORF table shows this state.
+**ORF screener readiness ("not yet at this level").** On the Oral Reading Fluency table only, a student whose BOY ORF baselines below the screener-readiness floor (`ORF_READINESS_FLOOR`, currently 10 — the Kindergarten Skills / basic-alphabet level) is not yet given the ORF passage screener. Their row collapses to a single italic "Student not yet at this level" cell (with a neutral dash icon) in place of numeric data, mirroring the mastery treatment at the low end. These rows group just below the working students and above any baselined-higher rows. The floor is a placeholder pending data-team confirmation of the real readiness rule. Because every kindergartner baselines below 10, the entire K ORF table shows this state.
 
 Each grade also has `plural` labels: "Kindergartners", "1st Graders", "2nd Graders".
 
@@ -215,13 +215,13 @@ All four metrics now have targets, so the table is always 8 columns.
 
 **Baselined-higher row treatment** — when a student baselined above target on the currently-viewed metric, the row collapses the numeric and chart columns into a single italic "Baselined higher at initial assessment" cell preceded by a small green check icon. Student name and teacher columns remain. These rows always group at the bottom of the table regardless of which column is sorted, so working students cluster at the top where attention should go.
 
-**Not-yet-at-this-level row treatment** (ORF table only) — when a student baselines below the ORF screener-readiness floor, the row collapses the numeric and chart columns into a single italic "Student not yet at this level" cell preceded by a neutral seedling icon (secondary text, not a status color). Student name and teacher columns remain. These rows group between the working students and the baselined-higher rows. Row sort order on the ORF table is therefore: working (top), not-yet, baselined-higher (bottom).
+**Not-yet-at-this-level row treatment** (ORF table only) — when a student baselines below the ORF screener-readiness floor, the row collapses the numeric and chart columns into a single italic "Student not yet at this level" cell preceded by a neutral dash icon (secondary text, not a status color). Student name and teacher columns remain. These rows group between the working students and the baselined-higher rows. Row sort order on the ORF table is therefore: working (top), not-yet, baselined-higher (bottom).
 
 **Data-freshness footer** — a centered note at the bottom of the page in the site-footer (under the main column, separated by a light top rule): "Data updates at the top of every hour · Last updated [time] · Refresh to see new data." The time is computed client-side to the top of the current hour.
 
 ### Icons
 
-Inline SVG icons (Heroicons-style outline strokes). No icon font / CDN. Used for: back arrow, chevron-right (card affordance), check (on-track status, baselined-higher row), warning triangle (below-target status), seedling (not-yet-at-this-level row), arrow-down-on-square (sign out), trending-up (callout and trend lines), and the sidebar nav glyphs.
+Inline SVG icons (Heroicons-style outline strokes). No icon font / CDN. Used for: back arrow, chevron-right (card affordance), check (on-track status, baselined-higher row), warning triangle (below-target status), dash (not-yet-at-this-level row), arrow-down-on-square (sign out), trending-up (callout and trend lines), and the sidebar nav glyphs.
 
 ## Accessibility
 
