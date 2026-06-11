@@ -1165,7 +1165,7 @@ function renderMonthsChart(months,showTarget){
   var col=showTarget?statusBarColor(status):aggBarColor();
   var bord=showTarget?statusBorderColor(status):aggBarEdge();
 
-  var head=showTarget?(statusMark(status)+'<div class="cm-name">Additional Months of Growth</div>'):'<div class="cm-name">Additional Months of Growth</div>';
+  var head=showTarget?(statusMark(status)+'<div class="cm-name">Months of Growth</div>'):'<div class="cm-name">Months of Growth</div>';
   var h='<div class="cm"><div class="cm-head">'+head+'</div>';
   h+='<div class="cm-bar-wrap"><div class="cm-bar">';
   if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
@@ -1195,7 +1195,7 @@ function metricCards(scope){
   var projMonths=Math.round(avgMopFor(scope)*MT/MO);
   var w=metricAgg(scope,'wcpm');var f=metricAgg(scope,'hfw');
   var h='<div class="metrics-row">';
-  h+=projCard('Trending to Additional Months of Growth',projMonths);
+  h+=projCard('Trending to Months of Growth',projMonths);
   h+=projCard('Trending to Oral Reading Fluency',w?w.projected:0);
   h+=projCard('Trending to High-Frequency Words',f?f.projected:0);
   h+='</div>';
