@@ -52,10 +52,10 @@ html, body { width: 100%; min-height: 100vh; }
   --ok-bar-edge: #188161; /* Green/700 — pill border / stroke */
   --warn-fg: #bd4f00;     /* Orange/700 */
   --warn-bg: #fff5ee;     /* Orange/100 */
-  --bad-fg: #cc3357;      /* Red/700 — text */
-  --bad-bg: #ffecf0;      /* Red/100 — badge bg */
-  --bad-bar: #ff3f6d;     /* Red/500 — bar fill */
-  --bad-bar-edge: #cc3357;/* Red/700 — pill border / stroke */
+  --bad-fg: #573988;      /* Brand purple — below-target text/icon (was Red/700) */
+  --bad-bg: #F7F4FA;      /* Brand/100 — badge bg */
+  --bad-bar: #573988;     /* Brand/500 — below-target bar fill (was Red/500) */
+  --bad-bar-edge: #27004B;/* Brand/800 — pill border / stroke */
 
   /* Radius / elevation */
   --r-sm: 4px;
@@ -97,10 +97,10 @@ html, body { width: 100%; min-height: 100vh; }
     --ok-bar-edge: #86e2c6; /* Green/400 — edge */
     --warn-fg: #ffc498;
     --warn-bg: #843802;
-    --bad-fg: #ff8ca7;      /* Red/300 — text on dark */
-    --bad-bg: #66192c;      /* Red/800 — badge bg */
-    --bad-bar: #ff3f6d;     /* Red/500 — bar fill */
-    --bad-bar-edge: #ff658a;/* Red/400 — edge */
+    --bad-fg: #C5B0E0;      /* Light brand purple — text on dark */
+    --bad-bg: #2d1b48;      /* Brand-tinted dark — badge bg */
+    --bad-bar: #573988;     /* Brand/500 — below-target bar fill */
+    --bad-bar-edge: #B49DD3;/* Brand/300 — edge on dark */
 
     --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
   }
@@ -759,6 +759,16 @@ tbody tr:hover td.sn {
 }
 .mastered-cell .mast-icon svg { width: 14px; height: 14px; }
 
+.notyet-cell {
+  text-align: left; color: var(--text-secondary);
+  font-style: italic; padding-left: 0;
+}
+.notyet-cell .notyet-icon {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--text-secondary);
+}
+.notyet-cell .notyet-icon svg { width: 14px; height: 14px; }
+
 /* ========= RESPONSIVE ========= */
 @media (max-width: 1024px) {
   :root { --sidebar-w: 72px; }
@@ -876,22 +886,28 @@ var MO = 4, MT = 10;
 
 var GM = {
 k:{name:"Kindergarten",plural:"Kindergartners",metrics:{
-  wcpm:{n:"Words Correct per Minute",t:10,b:2,mx:15,u:"WCPM",cap:null,key:1},
+  wcpm:{n:"Oral Reading Fluency",t:10,b:2,mx:15,u:"ORF",cap:null,key:1},
   hfw:{n:"High-Frequency Words",t:20,b:5,mx:25,u:"high-frequency words",cap:null,key:1},
   nwf:{n:"Nonsense Word Fluency",t:28,b:10,mx:35,u:"correct letter sounds",cap:null,key:0},
   lnf:{n:"Letter Naming Fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}},
 g1:{name:"1st Grade",plural:"1st Graders",metrics:{
-  wcpm:{n:"Words Correct per Minute",t:42,b:17,mx:58,u:"WCPM",cap:null,key:1},
+  wcpm:{n:"Oral Reading Fluency",t:42,b:17,mx:58,u:"ORF",cap:null,key:1},
   hfw:{n:"High-Frequency Words",t:200,b:80,mx:220,u:"high-frequency words",cap:200,key:1},
   nwf:{n:"Nonsense Word Fluency",t:58,b:27,mx:75,u:"correct letter sounds",cap:null,key:0},
   lnf:{n:"Letter Naming Fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}},
 g2:{name:"2nd Grade",plural:"2nd Graders",metrics:{
-  wcpm:{n:"Words Correct per Minute",t:90,b:40,mx:110,u:"WCPM",cap:null,key:1},
+  wcpm:{n:"Oral Reading Fluency",t:90,b:40,mx:110,u:"ORF",cap:null,key:1},
   hfw:{n:"High-Frequency Words",t:200,b:120,mx:220,u:"high-frequency words",cap:200,key:1},
   nwf:{n:"Nonsense Word Fluency",t:75,b:54,mx:100,u:"correct letter sounds",cap:null,key:0},
   lnf:{n:"Letter Naming Fluency",t:42,b:17,mx:55,u:"letters per minute",cap:null,key:0}}}
 };
 var GKS = ['k','g1','g2'];
+
+// ORF screener readiness floor (placeholder, pending data-team confirmation).
+// Students whose BOY ORF baselines below this sit in Kindergarten Skills
+// (basic alphabet knowledge) and are not yet given the ORF passage screener.
+// On the ORF student table they show "Student not yet at this level".
+var ORF_READINESS_FLOOR = 10;
 
 function rng(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 
@@ -973,6 +989,10 @@ function statusBarColor(status){
 function statusBorderColor(status){
   return status === 'on-track' ? cssVar('--ok-bar-edge') : cssVar('--bad-bar-edge');
 }
+// District/School aggregate charts no longer carry targets, so their bars use a
+// single brand growth color (Ignite Green/500) rather than on-track/below status.
+function aggBarColor(){return cssVar('--ok-bar')}
+function aggBarEdge(){return cssVar('--ok-bar-edge')}
 function slBg(c){return 'repeating-linear-gradient(45deg,'+c+' 0px,'+c+' 2px,transparent 2px,transparent 6px)'}
 
 function proj(boy,cur,cap){var r=(cur-boy)/MO;var p=Math.round(boy+r*MT);if(cap!==null)p=Math.min(p,cap);return p}
@@ -986,6 +1006,7 @@ var ICON_ARROW_UP = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox
 var ICON_ARROW_LEFT = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>';
 var ICON_CHEVRON_R = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>';
 var ICON_TRENDING_UP = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>';
+var ICON_SEEDLING = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25a3.75 3.75 0 013.75-3.75h.75M8.25 21v-8.25a3.75 3.75 0 00-3.75-3.75H3.75M12 12.75a3.75 3.75 0 003.75-3.75V8.25h-.75A3.75 3.75 0 0011.25 12v.75H12z"/></svg>';
 
 function statusMark(status){
   // Non-color status cue — small icon next to the metric title.
@@ -1094,58 +1115,54 @@ function pickVisiblePills(specs){
 function renderMetricChart(stats,title){
   if(!stats||!stats.mx)return '<div class="cm"><div class="cm-head"><div class="cm-name">'+title+'</div></div><div class="cm-stats" style="font-style:italic">No data</div></div>';
   // (renderMetricChart continues below)
+  // District/School aggregate chart — growth only, no target or status.
   var mx=stats.mx;
   var bp=Math.max(0,Math.min(100,stats.boy/mx*100));
   var cp=Math.min(100,stats.current/mx*100);
   var pp=Math.min(100,stats.projected/mx*100);
-  var tp=Math.min(100,stats.target/mx*100);
-  var status=stats.projected>=stats.target?'on-track':'below';
-  var col=statusBarColor(status);
-  var bord=statusBorderColor(status);
+  var col=aggBarColor();
+  var bord=aggBarEdge();
   var pillSpecs=[
     {key:'start',pct:bp,label:stats.boy,full:'Start: '+stats.boy},
-    {key:'projected',pct:pp,label:stats.projected,full:'Projected: '+stats.projected},
+    {key:'trending',pct:pp,label:stats.projected,full:'Trending to: '+stats.projected},
     {key:'current',pct:cp,label:stats.current,full:'Current: '+stats.current}
   ];
   var visible=pickVisiblePills(pillSpecs);
 
-  var h='<div class="cm"><div class="cm-head">'+statusMark(status)+'<div class="cm-name">'+title+'</div></div>';
+  var h='<div class="cm"><div class="cm-head"><div class="cm-name">'+title+'</div></div>';
   h+='<div class="cm-bar-wrap"><div class="cm-bar">';
   if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
   h+='<div class="cm-fill" style="left:'+bp+'%;width:'+Math.max(0,cp-bp)+'%;background:'+col+'"></div>';
-  h+='<div class="cm-target" style="left:'+tp+'%"></div>';
   visible.forEach(function(p){
     h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>';
   });
-  h+='</div><div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+stats.target+'">'+stats.target+'</div></div>';
+  h+='</div></div>';
   var gSign=stats.growth>=0?'+':'';
-  h+='<div class="cm-stats"><span class="cm-stat"><b>'+gSign+stats.growth+'</b> average growth</span><span class="cm-stat"><b>'+stats.projPct+'%</b> projected to meet target</span></div>';
+  h+='<div class="cm-stats"><span class="cm-stat"><b>'+gSign+stats.growth+'</b> average growth</span></div>';
   h+='</div>';
   return h;
 }
 
 function renderMonthsChart(months){
-  var projected=Math.round(months*MT/MO);
+  // Trending-to year-end months, growth only (no target/status at aggregate).
+  var trending=Math.round(months*MT/MO);
   var mx=Math.round(MT*1.5);
   var cp=Math.min(100,months/mx*100);
-  var pp=Math.min(100,projected/mx*100);
-  var tp=MT/mx*100;
-  var status=projected>=MT?'on-track':'below';
-  var col=statusBarColor(status);
-  var bord=statusBorderColor(status);
+  var pp=Math.min(100,trending/mx*100);
+  var col=aggBarColor();
+  var bord=aggBarEdge();
 
-  var h='<div class="cm"><div class="cm-head">'+statusMark(status)+'<div class="cm-name">Additional Months of Growth</div></div>';
+  var h='<div class="cm"><div class="cm-head"><div class="cm-name">Additional Months of Growth</div></div>';
   h+='<div class="cm-bar-wrap"><div class="cm-bar">';
   if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
   h+='<div class="cm-fill" style="left:0%;width:'+cp+'%;background:'+col+'"></div>';
-  h+='<div class="cm-target" style="left:'+tp+'%"></div>';
   var pills=pickVisiblePills([
-    {key:'projected',pct:pp,label:projected+' mo.',full:'Projected: '+projected+' months of growth'},
+    {key:'trending',pct:pp,label:trending+' mo.',full:'Trending to: '+trending+' months of growth'},
     {key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of growth'}
   ]);
   pills.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>'});
-  h+='</div><div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+MT+' months (full year of growth)">'+MT+' mo.</div></div>';
-  h+='<div class="cm-stats"><span class="cm-stat">projected <b>'+projected+' months</b> of growth by year-end</span></div>';
+  h+='</div></div>';
+  h+='<div class="cm-stats"><span class="cm-stat">trending to <b>'+trending+' months</b> of growth by year-end</span></div>';
   h+='</div>';
   return h;
 }
@@ -1161,9 +1178,9 @@ function metricCards(scope){
   var projMonths=Math.round(avgMopFor(scope)*MT/MO);
   var w=metricAgg(scope,'wcpm');var f=metricAgg(scope,'hfw');
   var h='<div class="metrics-row">';
-  h+=projCard('Projected Additional Months of Growth',projMonths);
-  h+=projCard('Projected Words Correct per Minute',w?w.projected:0);
-  h+=projCard('Projected High-Frequency Words',f?f.projected:0);
+  h+=projCard('Trending to Additional Months of Growth',projMonths);
+  h+=projCard('Trending to Oral Reading Fluency',w?w.projected:0);
+  h+=projCard('Trending to High-Frequency Words',f?f.projected:0);
   h+='</div>';
   return h;
 }
@@ -1171,13 +1188,21 @@ function metricCards(scope){
 // Shared legend — used on District, School, and Grade views so the visual
 // vocabulary (status colors + target tick + projected stripe) is documented
 // next to every chart.
-function chartLegend(){
-  return '<div class="legend" aria-label="Chart legend">'
-    +'<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> On track</div>'
-    +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below target</div>'
-    +'<div class="legend-item" style="margin-left:8px"><div class="ll" style="background:var(--text-primary)"></div> EOY target</div>'
-    +'<div class="legend-item"><div class="ls"></div> Projected growth</div>'
-    +'</div>';
+// full=true (grade student table): on-track/below status + EOY target + trending stripe.
+// full=false (district/school aggregate): growth-only — no status, no target.
+function chartLegend(full){
+  var h='<div class="legend" aria-label="Chart legend">';
+  if(full){
+    h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> On track</div>'
+      +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below target</div>'
+      +'<div class="legend-item" style="margin-left:8px"><div class="ll" style="background:var(--text-primary)"></div> EOY target</div>'
+      +'<div class="legend-item"><div class="ls"></div> Trending-to growth</div>';
+  }else{
+    h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> Growth so far</div>'
+      +'<div class="legend-item"><div class="ls"></div> Trending to year-end</div>';
+  }
+  h+='</div>';
+  return h;
 }
 
 function gsd(student,gk,mk){
@@ -1231,10 +1256,10 @@ function renderDistrict(){
 
   var dScope=[];SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){sch.students[gk].forEach(function(s){dScope.push({student:s,gk:gk})})})});
   var dCs=calloutFor(dScope,['wcpm','hfw']);
-  var dPers=dScope.length?'Your students have made <b>'+dCs.avgMonths+' months</b> of progress so far this year, reading <b>'+dCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
+  var dPers=dScope.length?'Your students have made <b>'+dCs.avgMonths+' months</b> of progress so far this year, improving oral reading fluency by <b>'+dCs.growths.wcpm+' more</b> words and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
   h+=calloutHtml(dPers);
   h+=metricCards(dScope);
-  h+=chartLegend();
+  h+=chartLegend(false);
 
   // Render schools alphabetically; preserve the original index (si) so navigation,
   // state, and per-school seeds stay stable.
@@ -1264,7 +1289,7 @@ function renderDistrict(){
     h+='<div class="gc" role="button" tabindex="0" onclick="navTo(\'school\','+i+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navTo(\'school\','+i+')}">';
     h+='<div class="gc-head"><div class="gc-titles"><div class="gc-name">'+sch.name+'</div><div class="gc-count">'+countStr+'</div></div>'+ICON_CHEVRON_R.replace('aria-hidden="true"','class="gc-arrow" aria-hidden="true"')+'</div><div class="gc-metrics">';
     h+=renderMonthsChart(schMonths);
-    h+=renderMetricChart(schWcpm,'Words Correct per Minute');
+    h+=renderMetricChart(schWcpm,'Oral Reading Fluency');
     h+=renderMetricChart(schHfw,'High-Frequency Words');
     h+='</div></div>';
   });
@@ -1286,10 +1311,10 @@ function renderSchool(si){
 
   var schScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schScope.push({student:s,gk:gk})})});
   var schCs=calloutFor(schScope,['wcpm','hfw']);
-  var schPers=schScope.length?'Your students have made <b>'+schCs.avgMonths+' months</b> of progress so far this year, reading <b>'+schCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
+  var schPers=schScope.length?'Your students have made <b>'+schCs.avgMonths+' months</b> of progress so far this year, improving oral reading fluency by <b>'+schCs.growths.wcpm+' more</b> words and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
   h+=calloutHtml(schPers);
   h+=metricCards(schScope);
-  h+=chartLegend();
+  h+=chartLegend(false);
 
   sg.forEach(function(gk){
     var g=GM[gk];
@@ -1300,7 +1325,7 @@ function renderSchool(si){
     h+='<div class="gc" role="button" tabindex="0" onclick="navTo(\'grade\','+si+',\''+gk+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navTo(\'grade\','+si+',\''+gk+'\')}">';
     h+='<div class="gc-head"><div><span class="gc-name">'+g.name+'</span><span class="gc-count">'+sch.students[gk].length+' students</span></div>'+ICON_CHEVRON_R.replace('aria-hidden="true"','class="gc-arrow" aria-hidden="true"')+'</div><div class="gc-metrics">';
     h+=renderMonthsChart(gMonths);
-    h+=renderMetricChart(gWcpm,'Words Correct per Minute');
+    h+=renderMetricChart(gWcpm,'Oral Reading Fluency');
     h+=renderMetricChart(gHfw,'High-Frequency Words');
     h+='</div></div>';
   });
@@ -1324,7 +1349,7 @@ function renderGrade(si,gk){
   var gCs=calloutFor(gScope,['wcpm','hfw']);
   var gPers;
   if(gScope.length===0){gPers='';}
-  else{var gLabel=gk==='k'?'kindergartners':(gk==='g1'?'1st graders':'2nd graders');gPers='Your '+gLabel+' have made <b>'+gCs.avgMonths+' months</b> of progress so far this year, reading <b>'+gCs.growths.wcpm+' more</b> words correct per minute and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
+  else{var gLabel=gk==='k'?'kindergartners':(gk==='g1'?'1st graders':'2nd graders');gPers='Your '+gLabel+' have made <b>'+gCs.avgMonths+' months</b> of progress so far this year, improving oral reading fluency by <b>'+gCs.growths.wcpm+' more</b> words and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
   h+=calloutHtml(gPers);
   h+=metricCards(gScope);
 
@@ -1338,7 +1363,7 @@ function renderGrade(si,gk){
   h+='</select>';
   h+='</div>';
 
-  h+=chartLegend();
+  h+=chartLegend(true);
   h+='</div>'; // /.grade-toolbar
 
   // Build thead HTML once — reused in both the sticky fake-header and the real table.
@@ -1347,7 +1372,7 @@ function renderGrade(si,gk){
   // Rebalance: name & bar do the most work; numeric columns trim to fit content.
   var cN=hasTarget?'20%':'22%',cT=hasTarget?'13%':'15%',cS='6%',cCu='7%',cCh=hasTarget?'22%':'37%',cG='7%',cP='13%',cD='12%';
   var theadInner='<tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cCu+';text-align:right" data-sort="current">Current <span class="sa">&#9650;</span></th><th style="width:'+cCh+'" aria-label="Progress"></th><th style="width:'+cG+';text-align:right" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
-  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Projected EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+';text-align:right" data-sort="delta">vs. Target <span class="sa">&#9650;</span></th>';
+  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Trending to EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+';text-align:right" data-sort="delta">vs. Target <span class="sa">&#9650;</span></th>';
   theadInner+='</tr>';
 
   // Sticky fake-header — pinned to viewport, overlaps real thead at scroll=0.
@@ -1367,8 +1392,15 @@ function renderGrade(si,gk){
 function renderRows(si,gk){
   var mk=st.gm[si][gk];var m=GM[gk].metrics[mk];var hasTarget=m.t!==null;
   var data=SCHOOLS[si].students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
+  // "Not yet at this level": on the ORF table only, students whose BOY ORF
+  // baselines below the screener-readiness floor (Kindergarten Skills).
+  data.forEach(function(d){d.notYet = (mk==='wcpm' && !d.mastered && d.boy < ORF_READINESS_FLOOR);});
+  // Group order: working students first (actionable), then not-yet, then
+  // baselined-higher at the bottom — regardless of the active sort column.
+  function grp(d){return d.mastered?2:(d.notYet?1:0);}
   data.sort(function(a,b){
-    if(a.mastered!==b.mastered)return a.mastered?1:-1;
+    var ga=grp(a),gb=grp(b);
+    if(ga!==gb)return ga-gb;
     var va=a[st.sort],vb=b[st.sort];
     if(typeof va==='string'){va=va.toLowerCase();vb=vb.toLowerCase()}
     if(va<vb)return st.asc?-1:1;
@@ -1378,10 +1410,17 @@ function renderRows(si,gk){
   var tPct=hasTarget?Math.round(m.t/m.mx*100):0;
   var rows='';
   data.forEach(function(d){
+    if(d.notYet){
+      var nyCols=hasTarget?6:4;
+      rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
+      rows+='<td colspan="'+nyCols+'" class="notyet-cell"><span class="notyet-icon">'+ICON_SEEDLING+' Student not yet at this level</span></td>';
+      rows+='</tr>';
+      return;
+    }
     if(d.mastered){
       var nCols=hasTarget?6:4;
       rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
-      rows+='<td colspan="'+nCols+'" class="mastered-cell"><span class="mast-icon">'+ICON_CHECK+' Mastered at initial assessment</span></td>';
+      rows+='<td colspan="'+nCols+'" class="mastered-cell"><span class="mast-icon">'+ICON_CHECK+' Baselined higher at initial assessment</span></td>';
       rows+='</tr>';
       return;
     }
