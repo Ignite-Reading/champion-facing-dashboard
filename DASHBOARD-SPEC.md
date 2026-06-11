@@ -12,7 +12,7 @@ Ignite Reading provides 1:1 virtual reading tutoring for K-2 students. This dash
 
 Three levels with full drill-down. Each level is a single-page view swap (no routing, no URL changes).
 
-1. **District view** — cards for each school, each showing three aggregate charts (additional months of growth, WCPM, high-frequency words) across all grades at that school. Schools are listed alphabetically.
+1. **District view** — cards for each school, each showing three aggregate charts (additional months of growth, oral reading fluency, high-frequency words) across all grades at that school. Schools are listed alphabetically.
 2. **School view** — cards for each grade at that school, each showing the same three aggregate charts scoped to that grade.
 3. **Grade view** — student-level table with sortable columns, a metric toggle (pill buttons on desktop, a dropdown on mobile), and per-student bar charts.
 
@@ -24,22 +24,22 @@ All data is generated client-side using a seeded PRNG (mulberry32-style) so resu
 
 ### Grade configuration (`GM` object)
 
-All three grades have the same four metrics in the same order so the dashboard reads consistently as students progress. WCPM is the metric of truth across grades; NWF and LNF stay available as foundational checks for students who haven't yet mastered them.
+All three grades have the same four metrics in the same order so the dashboard reads consistently as students progress. Oral Reading Fluency (ORF) is the metric of truth across grades; NWF and LNF stay available as foundational checks for students who haven't yet mastered them. ORF is measured in words correct per minute; its internal `GM` key is still `wcpm`.
 
-**Kindergarten** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (NWF, LNF)
-- Words correct per minute: target 10, BOY benchmark 2, max 15, unit "WCPM"
+**Kindergarten** — 4 metrics, 2 key (ORF, HFW), 2 supplementary (NWF, LNF)
+- Oral reading fluency: target 10, BOY benchmark 2, max 15, unit "ORF"
 - High-frequency words: target 20, BOY benchmark 5, max 25, unit "high-frequency words"
 - Nonsense word fluency: target 28, BOY benchmark 10, max 35, unit "correct letter sounds"
 - Letter naming fluency: target 42, BOY benchmark 17, max 55, unit "letters per minute"
 
-**1st Grade** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (NWF, LNF)
-- Words correct per minute: target 42, BOY benchmark 17, max 58, unit "WCPM"
+**1st Grade** — 4 metrics, 2 key (ORF, HFW), 2 supplementary (NWF, LNF)
+- Oral reading fluency: target 42, BOY benchmark 17, max 58, unit "ORF"
 - High-frequency words: target 200, BOY benchmark 80, max 220, cap 200, unit "high-frequency words"
 - Nonsense word fluency: target 58, BOY benchmark 27, max 75 (most 1st graders enter already mastered)
 - Letter naming fluency: target 42, BOY benchmark 17, max 55 (most 1st graders enter already mastered)
 
-**2nd Grade** — 4 metrics, 2 key (WCPM, HFW), 2 supplementary (NWF, LNF)
-- Words correct per minute: target 90, BOY benchmark 40, max 110, unit "WCPM"
+**2nd Grade** — 4 metrics, 2 key (ORF, HFW), 2 supplementary (NWF, LNF)
+- Oral reading fluency: target 90, BOY benchmark 40, max 110, unit "ORF"
 - High-frequency words: target 200, BOY benchmark 120, max 220, cap 200, unit "high-frequency words"
 - Nonsense word fluency: target 75, BOY benchmark 54, max 100 (essentially all 2nd graders mastered)
 - Letter naming fluency: target 42, BOY benchmark 17, max 55 (essentially all 2nd graders mastered)
@@ -48,13 +48,15 @@ Nonsense Word Fluency targets and BOY benchmarks are Acadience-typical defaults;
 
 Each metric has a `key` flag (1 = key metric used in aggregate calculations, 0 = supplementary). Metrics with `cap` cannot exceed that value (HFW caps at 200).
 
-**Mastery.** If a student's BOY score for a metric is already at or above the EOY target, that student has "mastered" the metric during initial assessment. Mastered students keep their BOY score as their current value, are never re-tested for ongoing progress on that metric, and appear in the grade-view student table as a single italic "Mastered at initial assessment" row (with a small check icon) in place of their numeric data. They count as "on track" for that metric in the projected-to-meet-target percentage but contribute zero growth to the average-growth calculation. Mastered rows always group at the bottom of the table regardless of sort column.
+**Mastery ("baselined higher").** If a student's BOY score for a metric is already at or above the EOY target, that student baselined above the goal during initial assessment. These students keep their BOY score as their current value, are never re-tested for ongoing progress on that metric, and appear in the grade-view student table as a single italic "Baselined higher at initial assessment" row (with a small check icon) in place of their numeric data. They count as on track for that metric, but contribute zero growth to the average-growth calculation. These rows always group at the bottom of the table regardless of sort column.
+
+**ORF screener readiness ("not yet at this level").** On the Oral Reading Fluency table only, a student whose BOY ORF baselines below the screener-readiness floor (`ORF_READINESS_FLOOR`, currently 10 — the Kindergarten Skills / basic-alphabet level) is not yet given the ORF passage screener. Their row collapses to a single italic "Student not yet at this level" cell (with a neutral seedling icon) in place of numeric data, mirroring the mastery treatment at the low end. These rows group just below the working students and above any baselined-higher rows. The floor is a placeholder pending data-team confirmation of the real readiness rule. Because every kindergartner baselines below 10, the entire K ORF table shows this state.
 
 Each grade also has `plural` labels: "Kindergartners", "1st Graders", "2nd Graders".
 
 ### District metric mapping (`DMET`)
 
-`DMET` maps each grade to one representative metric (WCPM for every grade, since WCPM is the metric of truth). It is used by the school/district "projected to meet target" count so each student is counted once against a single metric rather than once per key metric. The card-level charts aggregate WCPM, HFW, and months of growth directly (see Aggregate metric charts).
+`DMET` maps each grade to one representative metric (ORF for every grade, since ORF is the metric of truth). It originally backed the school/district "projected to meet target" count (each student counted once against a single metric). With targets removed from the aggregate views, that count is no longer surfaced, but `DMET` remains in the data layer. The card-level charts aggregate ORF, HFW, and months of growth directly (see Aggregate metric charts).
 
 ### School configuration (`SCFG`)
 
@@ -73,7 +75,7 @@ For each student, for each metric:
 
 Student names use full first + last name pairs drawn from `FN` and `LN` pools (e.g., "Alex Nguyen"), not initials.
 
-Mastery falls out of the BOY ranges: WCPM and HFW BOY ranges sit well below their targets (no mastery), while NWF and LNF BOY ranges for 1st and 2nd grade sit at or above target for most students, so most upper-grade students are mastered on the foundational metrics.
+Mastery falls out of the BOY ranges: ORF and HFW BOY ranges sit well below their targets (no mastery), while NWF and LNF BOY ranges for 1st and 2nd grade sit at or above target for most students, so most upper-grade students baseline higher on the foundational metrics.
 
 ### Projection formula
 
@@ -85,20 +87,22 @@ projected = BOY + ((current - BOY) / monthsElapsed) * totalMonths
 
 Currently configured for December (month 4 of a 10-month school year): `MO=4, MT=10`.
 
-If a metric has a cap, the projection is clamped to that cap.
+If a metric has a cap, the projection is clamped to that cap. In the UI this projected value is always labeled "trending to" (never "projected" or "predicted") to signal a trajectory rather than a guarantee.
 
 ### Status determination
 
-Binary. No intermediate/approaching state. Status drives both color **and** a non-color icon (check or warning), so the cue does not rely on color alone (WCAG 1.4.1).
+Binary, and applied **only at the student level** (the District and School aggregate charts no longer show targets, so they carry no status — see Aggregate metric charts). No intermediate/approaching state. Status drives both color **and** a non-color icon (check or warning), so the cue does not rely on color alone (WCAG 1.4.1).
 
-- **On track** (bar `--ok-bar` #28d7a3, edge/text `--ok-bar-edge`/`--ok-fg` #188161): projected EOY ≥ target. Check icon.
-- **Below target** (bar `--bad-bar` #ff3f6d, edge/text `--bad-bar-edge`/`--bad-fg` #cc3357): projected EOY < target. Warning-triangle icon.
+- **On track** (bar `--ok-bar` #28d7a3, edge/text `--ok-bar-edge`/`--ok-fg` #188161): trending-to EOY ≥ target. Check icon.
+- **Below target** (bar `--bad-bar` #573988 brand purple, edge `--bad-bar-edge` #27004B, text/icon `--bad-fg` #573988): trending-to EOY < target. Warning-triangle icon. (Below target is intentionally the brand purple, not red — there is no red in the dashboard.)
 
-Dark mode tokens shift the text/edge colors lighter so they retain AA contrast on the dark surface; bar fills stay the same hue.
+Dark mode tokens shift the below-target text/edge to lighter purple (`--bad-fg` #C5B0E0, `--bad-bar-edge` #B49DD3) for AA contrast on the dark surface; bar fills stay the same hue.
 
-Status applies consistently to the bar fill, the projected-growth slash pattern, the journey-pill stroke on aggregate charts, and the Projected-EOY status icon in the student table.
+At the student level, status applies consistently to the inline bar fill, the trending-to-growth slash pattern, the negative growth/delta text, and the Trending-to-EOY status icon.
 
-Mastered students are treated as "on track" for that metric (they began at or above target).
+Note: purple now carries two meanings — the brand/primary color (buttons, callout, active toggle, pills) and the below-target status. They live in different contexts so they don't collide, but it is a deliberate overload.
+
+Baselined-higher students are treated as on track for that metric (they began at or above target).
 
 ## Visual design
 
@@ -163,26 +167,26 @@ A small JS helper (`applyStickyOffsets`) measures the heights of the first two b
 - Grade: student count with grade plural label
 
 **Growth statement callout** — hero treatment, sits between the sub-counts bar and the metric cards on every view. White card with a 2px brand-purple border and a subtle brand shadow. A 44px brand-purple circle on the left holds a trending-up icon. The body has an uppercase brand eyebrow ("GROWTH HIGHLIGHT") above a 20px primary-text sentence. Key growth figures (months of progress, per-metric deltas) sit inline as brand-purple `<b>` pills with a 1.5px brand border and small shadow. The personalized sentence adapts to the scope:
-- District and school views: aggregated across all students (K, 1st, 2nd), citing words correct per minute and high-frequency words.
-- Grade view: scoped to that grade, same WCPM/HFW phrasing across all grades including kindergarten.
+- District and school views: aggregated across all students (K, 1st, 2nd), citing oral reading fluency and high-frequency words. The ORF clause reads "improving oral reading fluency by N more words"; the HFW clause "mastering N more high-frequency words."
+- Grade view: scoped to that grade, same ORF/HFW phrasing across all grades including kindergarten.
 
 The months-of-progress figure uses a proxy formula until a real definition lands: per student, `(current − BOY) / (target − BOY) × total_school_months`, capped at total months, then averaged across all students and metrics in scope.
 
-**Summary metric cards** (`.metrics-row`, `.mc`) — auto-fit grid of three cards (`minmax(220px, 1fr)`). White surface, soft border, card shadow, 16-20px padding. Each card shows a 14px secondary-text label (with a `min-height: 2.7em` reservation so 1- and 2-line labels align across the three cards), a 32px weight-700 value, a 12px "by year-end" subtitle, and a green trending-up icon plus "+N since last week" trend line in `--ok-fg`. Every view shows the same three cards: **Projected Additional Months of Growth · Projected Words Correct per Minute · Projected High-Frequency Words**. Scope is aggregate across all grades at the district and school levels, and grade-specific at the grade view. The "since last week" trend is a deterministic placeholder derived from the value (the prototype has no real time-series history).
+**Summary metric cards** (`.metrics-row`, `.mc`) — auto-fit grid of three cards (`minmax(220px, 1fr)`). White surface, soft border, card shadow, 16-20px padding. Each card shows a 14px secondary-text label (with a `min-height: 2.7em` reservation so 1- and 2-line labels align across the three cards), a 32px weight-700 value, a 12px "by year-end" subtitle, and a green trending-up icon plus "+N since last week" trend line in `--ok-fg`. Every view shows the same three cards: **Trending to Additional Months of Growth · Trending to Oral Reading Fluency · Trending to High-Frequency Words**. Scope is aggregate across all grades at the district and school levels, and grade-specific at the grade view. The "since last week" trend is a deterministic placeholder derived from the value (the prototype has no real time-series history).
 
 **School / grade cards** (`.gc`) — white surface, soft border, card shadow, hover state (border shifts to brand-soft, shadow elevates). `role="button"` with `tabindex="0"` and Enter/Space keyboard handlers. Header has the unit name + count on the left and a chevron-right icon on the right. On district view, the count line shows total students plus a per-grade breakdown ("`35 students · K: 8 · 1st: 20 · 2nd: 7`"), stacked under the school name, with bold numbers.
 
-**Aggregate metric charts** (on district school cards and school grade cards) — three charts per card in a responsive grid (3-across desktop, 2-across at ≤1024px, 1-across at ≤640px). Each card shows the same three charts in the same order: Additional Months of Growth, Words Correct per Minute, High-Frequency Words.
+**Aggregate metric charts** (on district school cards and school grade cards) — three charts per card in a responsive grid (3-across desktop, 2-across at ≤1024px, 1-across at ≤640px). Each card shows the same three charts in the same order: Additional Months of Growth, Oral Reading Fluency, High-Frequency Words. These charts show **growth only — no targets and no on-track/below status** (targets remain at the student level, where they're actionable).
 
-Each chart shares a common shape: a 14px primary-text label preceded by a status mark icon (check for on-track, warning for below target — non-color status cue) above a 20px tall bar with rounded ends. The WCPM and HFW charts contain a status-colored solid fill from average BOY to average current, a diagonal slash pattern from average current to average projected, a vertical target tick at the target position, and pill labels overlaying the bar at the BOY / Current / Projected positions. (The start is marked by its pill and the rounded left edge of the fill; there is no separate start dot on the aggregate charts — the student-table bars keep their start dot since they have no pills.) The journey pills (Start, Current, Projected) are small white chips with primary-text numbers and a 1px stroke matching the bar's status edge color. When they would collide horizontally, the lower-priority pill is hidden in this order: Start > Projected > Current. The target is a separate small pill sitting just below the bar, horizontally centered on the target tick (which extends down to meet it) and rendered in secondary text so it reads as a goal marker rather than a data point. Below the chart, a notes block (centered text on the sunken-color background, with padding) carries the stats on separate lines: "+N average growth" and "X% projected to meet target".
+Each chart shares a common shape: a 14px primary-text label (no status icon) above a 20px tall bar with rounded ends. The ORF and HFW charts contain a single brand-green fill (`--ok-bar`, used as the neutral growth color regardless of any target) from average BOY to average current, a diagonal slash pattern from average current to average trending-to, and pill labels overlaying the bar at the BOY / Current / Trending-to positions. (The start is marked by its pill and the rounded left edge of the fill; there is no separate start dot on the aggregate charts — the student-table bars keep their start dot since they have no pills.) The journey pills (Start, Current, Trending-to) are small white chips with primary-text numbers and a 1px green stroke. When they would collide horizontally, the lower-priority pill is hidden in this order: Start > Trending-to > Current. There is no target tick or target pill. Below the chart, a notes block (centered text on the sunken-color background, with padding) carries a single stat: "+N average growth".
 
-The Additional Months of Growth chart uses the same bar shape on a 0-to-15-months scale (room to show growth beyond a full school year). It fills from 0 to the average months achieved, then shows a diagonal projected-growth slash from current to the projected year-end months (current rate extrapolated: months ÷ months-elapsed × total-months). A target tick sits at 10 (a full year of growth). Pills mark current and projected. Bar color: green if projected ≥ a full year (10 months), red if behind. Reads "projected N months of growth by year-end" below.
+The Additional Months of Growth chart uses the same bar shape on a 0-to-15-months scale (room to show growth beyond a full school year). It fills from 0 to the average months achieved, then shows a diagonal trending-to slash from current to the trending-to year-end months (current rate extrapolated: months ÷ months-elapsed × total-months), in the same brand-green growth color. No target tick. Pills mark current and trending-to. Reads "trending to N months of growth by year-end" below.
 
-The solid fill on every chart (aggregate and student-level) is rounded only on its left end; the right end is square so it reads as continuing into the projected-growth slash rather than terminating as a self-contained pill.
+The solid fill on every chart (aggregate and student-level) is rounded only on its left end; the right end is square so it reads as continuing into the trending-to slash rather than terminating as a self-contained pill.
 
-Aggregate math: WCPM and HFW averages use raw scores across all students in scope regardless of grade. The target tick uses the weighted-average target across the same students. Mastered students contribute their BOY/current as their values (no growth) and count as "projected to meet target".
+Aggregate math: ORF and HFW averages use raw scores across all students in scope regardless of grade. Baselined-higher students contribute their BOY/current as their values (no growth). With targets removed, the aggregate charts compute no status and no "% to meet target."
 
-**Chart legend** — small colored squares for On track / Below target, a line for EOY target, and the slash pattern swatch for Projected growth. Shared component, used on district, school, and grade views.
+**Chart legend** — context-aware. The full legend (grade student-table view) shows On track (green) / Below target (purple) squares, a line for EOY target, and the slash swatch for Trending-to growth. The reduced legend (district and school aggregate views, which have no targets) shows only "Growth so far" (green swatch) and "Trending to year-end" (slash swatch).
 
 **Student table** (grade view only) — fixed table layout inside a rounded, shadowed `.table-wrap`. Uppercase 12px secondary header cells on the sunken-color background; hover state on body rows (`--bg-hover`). Minimum width 1000px (the wrap scrolls horizontally on narrower viewports). Columns:
 - Student (name, weight 500, truncates with ellipsis)
@@ -190,8 +194,8 @@ Aggregate math: WCPM and HFW averages use raw scores across all students in scop
 - Start (BOY score, secondary color, right-aligned, sortable)
 - Current (current score, primary color, right-aligned, sortable)
 - Chart (inline bar chart from BOY to current, no header label, not sortable)
-- Growth (signed, green positive / red negative)
-- Projected EOY (status icon + value — non-color status cue)
+- Growth (signed, green positive / purple negative)
+- Trending to EOY (status icon + value — non-color status cue)
 - vs. Target (signed delta)
 
 All four metrics now have targets, so the table is always 8 columns.
@@ -200,18 +204,20 @@ All four metrics now have targets, so the table is always 8 columns.
 1. Track: sunken-color background spanning the full bar
 2. Start marker: 12px white circle with a 2px status-colored stroke at the BOY (beginning-of-year) position, left edge aligned with the start of the colored fill
 3. Current progress: solid fill in the status color, extending from BOY to current position (rounded left edge, square right edge)
-4. Projected growth zone: diagonal slash pattern (45deg repeating gradient, 2px stripes at 6px intervals) in the status color, extending from current to projected position
+4. Trending-to growth zone: diagonal slash pattern (45deg repeating gradient, 2px stripes at 6px intervals) in the status color, extending from current to trending-to position
 5. Target marker: 2px wide, 20px tall tick mark at the target percentage, primary-text color
 
-**Metric toggle buttons** (grade view) — horizontal row of pill buttons inside the sticky toolbar band. Inactive state is a neutral chip (border, body text); active state fills brand-purple with white text. All four metrics are available on every grade view, always in the same order: Words correct per minute, High-frequency words, Nonsense word fluency, Letter naming fluency. WCPM is selected by default for every grade. Below 768px viewport, the buttons collapse into a `<select>` dropdown with the same order. `role="tablist"`; `aria-selected` reflects the active state.
+**Metric toggle buttons** (grade view) — horizontal row of pill buttons inside the sticky toolbar band. Inactive state is a neutral chip (border, body text); active state fills brand-purple with white text. All four metrics are available on every grade view, always in the same order: Oral reading fluency, High-frequency words, Nonsense word fluency, Letter naming fluency. ORF is selected by default for every grade. Below 768px viewport, the buttons collapse into a `<select>` dropdown with the same order. `role="tablist"`; `aria-selected` reflects the active state.
 
-**Mastery row treatment** — when a student is mastered on the currently-viewed metric, the row collapses the numeric and chart columns into a single italic "Mastered at initial assessment" cell preceded by a small green check icon. Student name and teacher columns remain. Mastered rows always group together at the bottom of the table regardless of which column is sorted, so working students cluster at the top where attention should go.
+**Baselined-higher row treatment** — when a student baselined above target on the currently-viewed metric, the row collapses the numeric and chart columns into a single italic "Baselined higher at initial assessment" cell preceded by a small green check icon. Student name and teacher columns remain. These rows always group at the bottom of the table regardless of which column is sorted, so working students cluster at the top where attention should go.
+
+**Not-yet-at-this-level row treatment** (ORF table only) — when a student baselines below the ORF screener-readiness floor, the row collapses the numeric and chart columns into a single italic "Student not yet at this level" cell preceded by a neutral seedling icon (secondary text, not a status color). Student name and teacher columns remain. These rows group between the working students and the baselined-higher rows. Row sort order on the ORF table is therefore: working (top), not-yet, baselined-higher (bottom).
 
 **Data-freshness footer** — a centered note at the bottom of the page in the site-footer (under the main column, separated by a light top rule): "Data updates at the top of every hour · Last updated [time] · Refresh to see new data." The time is computed client-side to the top of the current hour.
 
 ### Icons
 
-Inline SVG icons (Heroicons-style outline strokes). No icon font / CDN. Used for: back arrow, chevron-right (card affordance), check (on-track status, mastery), warning triangle (below-target status), arrow-down-on-square (sign out), trending-up (callout and trend lines), and the sidebar nav glyphs.
+Inline SVG icons (Heroicons-style outline strokes). No icon font / CDN. Used for: back arrow, chevron-right (card affordance), check (on-track status, baselined-higher row), warning triangle (below-target status), seedling (not-yet-at-this-level row), arrow-down-on-square (sign out), trending-up (callout and trend lines), and the sidebar nav glyphs.
 
 ## Accessibility
 
@@ -220,7 +226,7 @@ Inline SVG icons (Heroicons-style outline strokes). No icon font / CDN. Used for
 - **Reduced motion**: transitions collapse to near-zero when `prefers-reduced-motion: reduce` is set.
 - **Semantic structure**: each view uses `<h1>` for the title; `<nav>`, `<main>`, `<aside>`, `<footer>` landmarks.
 - **ARIA**: `role="region"` on the callout with `aria-label`; `role="tablist"` and `aria-selected` on the metric toggle; `aria-current="page"` on the active sidebar item; `aria-hidden="true"` on decorative SVGs.
-- **Non-color status cues**: bar status is always paired with a check or warning icon next to the chart title and on the Projected-EOY value in the student table (WCAG 1.4.1).
+- **Non-color status cues**: at the student level, bar status is always paired with a check or warning icon on the Trending-to-EOY value (WCAG 1.4.1). Aggregate charts carry no status, so no status icon.
 - **Keyboard**: school/grade cards are `role="button"` with `tabindex="0"` and Enter/Space handlers. Table columns are sortable via the header buttons.
 - **Color contrast**: text and status colors selected to pass WCAG 2.1 AA on both light and dark sunken surfaces. The `--text-tertiary` token is reserved for decorative use (icons/dividers) and intentionally fails AA — never used for text.
 
@@ -248,16 +254,19 @@ The student table always lives inside a horizontal-scroll wrapper (1000px min-wi
 
 ## Key design decisions
 
-1. **Binary status only.** On track or below target. No yellow / approaching state. Simpler for administrators to act on.
-2. **Status based on projected EOY, not current score.** A student could have a low current score but strong growth trajectory and still be "on track." This rewards growth.
-3. **Status is never carried by color alone.** A check or warning icon accompanies every status indicator (chart title, projected-EOY column) to satisfy WCAG 1.4.1.
-4. **Three aggregate charts per card.** District and school cards show months of growth, WCPM, and HFW side by side (3-across desktop, 2-across tablet, 1-across mobile), each aggregating real scores across all students in scope.
-5. **WCPM is the metric of truth.** Every grade exposes the same four metrics with WCPM as the default and the headline; NWF and LNF are supplementary and mostly resolve to mastery for upper grades.
-6. **Mastery instead of emerging metrics.** All four metrics have targets. Students who began at or above a target are "mastered" and shown as a single row rather than a score.
-7. **Sticky context bands.** The page header, grade-view toolbar, and table thead stack as sticky layers so the user keeps title, scope, controls, and column labels in view while scanning long content.
-8. **Schools sort alphabetically.** District view orders schools A-Z while preserving each school's original index (so per-school seeds and deep links stay stable).
-9. **Single-page app shell.** Persistent left sidebar plus a flex main column, no routing. Drill-down replaces `#app` contents in place.
-10. **Demo data is seeded.** Same data every page load. Change a school's seed in `SCFG` to get different students.
+1. **Binary status, student level only.** On track or below target, shown only in the student table. No yellow / approaching state. The District and School aggregate charts show growth without targets or status.
+2. **Status based on trending-to EOY, not current score.** A student could have a low current score but strong growth trajectory and still be "on track." This rewards growth.
+3. **"Trending to," never "projected."** Forward-looking numbers are labeled "trending to" so users read them as a trajectory, not a guarantee.
+4. **No targets on aggregate views.** District/school charts are growth-only (start → current → trending-to). Targets stay at the student level where a teacher can act on them.
+5. **Purple, not red, for below target.** The below-target status uses the brand purple #573988; there is no red anywhere in the dashboard. (Tradeoff: purple now means both "brand" and "below target," but in separate contexts.)
+6. **Status is never carried by color alone.** A check or warning icon accompanies every student-level status indicator (Trending-to-EOY column) to satisfy WCAG 1.4.1.
+7. **Three aggregate charts per card.** District and school cards show months of growth, oral reading fluency, and HFW side by side (3-across desktop, 2-across tablet, 1-across mobile), each aggregating real scores across all students in scope.
+8. **Oral Reading Fluency (ORF) is the metric of truth.** Every grade exposes the same four metrics with ORF as the default and the headline; NWF and LNF are supplementary and mostly resolve to baselined-higher for upper grades.
+9. **Two row states for non-working students.** "Baselined higher at initial assessment" (began at/above target) and, on the ORF table only, "Student not yet at this level" (baselined below the ORF screener-readiness floor). Both collapse to a single labeled cell.
+10. **Sticky context bands.** The page header, grade-view toolbar, and table thead stack as sticky layers so the user keeps title, scope, controls, and column labels in view while scanning long content.
+11. **Schools sort alphabetically.** District view orders schools A-Z while preserving each school's original index (so per-school seeds and deep links stay stable).
+12. **Single-page app shell.** Persistent left sidebar plus a flex main column, no routing. Drill-down replaces `#app` contents in place.
+13. **Demo data is seeded.** Same data every page load. Change a school's seed in `SCFG` to get different students.
 
 ## File structure
 
