@@ -1212,9 +1212,9 @@ function metricCards(scope){
   var projMonths=Math.round(avgMopFor(scope)*MT/MO);
   var w=metricAgg(scope,'wcpm');var f=metricAgg(scope,'hfw');
   var h='<div class="metrics-row">';
-  h+=projCard('Trending to Months of Growth',projMonths);
-  h+=projCard('Trending to Oral Reading Fluency',w?w.projected:0);
-  h+=projCard('Trending to High-Frequency Words',f?f.projected:0);
+  h+=projCard('Current Months of Growth Estimate',projMonths);
+  h+=projCard('Current Oral Reading Fluency Estimate',w?w.projected:0);
+  h+=projCard('Current High-Frequency Words Estimate',f?f.projected:0);
   h+='</div>';
   return h;
 }
