@@ -885,6 +885,16 @@ tbody tr:hover td.sn {
  * ========================================================================= */
 var MO = 4, MT = 10;
 
+// Estimated-growth (year-end projection) availability. Production estimates
+// likely won't exist until mid-year, so the charts must degrade gracefully
+// when they're absent. Flip to false to preview the no-estimate state:
+// the projected slash, the estimated-growth pill, on-track/below status
+// (colors + icons), the "% estimated to meet benchmark" stat, and the
+// student-table Estimated-growth value all drop out. The growth fill stays
+// green (we're still showing growth), and the benchmark tick/pill stays
+// (a fixed grade-level standard, known regardless of estimates).
+var ESTIMATES_AVAILABLE = true;
+
 var GM = {
 k:{name:"Kindergarten",plural:"Kindergartners",metrics:{
   wcpm:{n:"Oral Reading Fluency",t:10,b:2,mx:15,u:"ORF",cap:null,key:1},
@@ -1135,25 +1145,27 @@ function pickVisiblePills(specs){
 // target" stat.
 function renderMetricChart(stats,title,showTarget){
   if(!stats||!stats.mx)return '<div class="cm"><div class="cm-head"><div class="cm-name">'+title+'</div></div><div class="cm-stats" style="font-style:italic">No data</div></div>';
+  var est=ESTIMATES_AVAILABLE;
   var mx=stats.mx;
   var bp=Math.max(0,Math.min(100,stats.boy/mx*100));
   var cp=Math.min(100,stats.current/mx*100);
   var pp=Math.min(100,stats.projected/mx*100);
   var tp=Math.min(100,stats.target/mx*100);
   var status=stats.projected>=stats.target?'on-track':'below';
-  var col=showTarget?statusBarColor(status):aggBarColor();
-  var bord=showTarget?statusBorderColor(status):aggBarEdge();
-  var pillSpecs=[
-    {key:'start',pct:bp,label:stats.boy,full:'Start: '+stats.boy},
-    {key:'trending',pct:pp,label:stats.projected,full:'Estimated growth: '+stats.projected},
-    {key:'current',pct:cp,label:stats.current,full:'Current: '+stats.current}
-  ];
+  // Status coloring/icons only when an estimate exists AND the view shows
+  // benchmarks. Without an estimate the fill stays green (growth color).
+  var showStatus=est&&showTarget;
+  var col=showStatus?statusBarColor(status):aggBarColor();
+  var bord=showStatus?statusBorderColor(status):aggBarEdge();
+  var pillSpecs=[{key:'start',pct:bp,label:stats.boy,full:'Start: '+stats.boy}];
+  if(est)pillSpecs.push({key:'trending',pct:pp,label:stats.projected,full:'Estimated growth: '+stats.projected});
+  pillSpecs.push({key:'current',pct:cp,label:stats.current,full:'Current: '+stats.current});
   var visible=pickVisiblePills(pillSpecs);
 
-  var head=showTarget?(statusMark(status)+'<div class="cm-name">'+title+'</div>'):'<div class="cm-name">'+title+'</div>';
+  var head=showStatus?(statusMark(status)+'<div class="cm-name">'+title+'</div>'):'<div class="cm-name">'+title+'</div>';
   var h='<div class="cm"><div class="cm-head">'+head+'</div>';
   h+='<div class="cm-bar-wrap"><div class="cm-bar">';
-  if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
+  if(est&&pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
   h+='<div class="cm-fill" style="left:'+bp+'%;width:'+Math.max(0,cp-bp)+'%;background:'+col+'"></div>';
   if(showTarget)h+='<div class="cm-target" style="left:'+tp+'%"></div>';
   visible.forEach(function(p){
@@ -1164,57 +1176,67 @@ function renderMetricChart(stats,title,showTarget){
   h+='</div>';
   var gSign=stats.growth>=0?'+':'';
   h+='<div class="cm-stats"><span class="cm-stat"><b>'+gSign+stats.growth+'</b> average growth</span>';
-  if(showTarget)h+='<span class="cm-stat"><b>'+stats.projPct+'%</b> estimated to meet benchmark</span>';
+  if(showStatus)h+='<span class="cm-stat"><b>'+stats.projPct+'%</b> estimated to meet benchmark</span>';
   h+='</div>';
   h+='</div>';
   return h;
 }
 
 function renderMonthsChart(months,showTarget){
-  // Trending-to year-end months. District: growth only. School (showTarget):
-  // restores the full-year target tick at MT (10 mo.) + status coloring + pill.
+  // Months of growth. School (showTarget) shows the full-year benchmark tick.
+  // The estimated year-end slash/pill/stat appear only when estimates exist.
+  var est=ESTIMATES_AVAILABLE;
   var trending=Math.round(months*MT/MO);
   var mx=Math.round(MT*1.5);
   var cp=Math.min(100,months/mx*100);
   var pp=Math.min(100,trending/mx*100);
   var tp=MT/mx*100;
   var status=trending>=MT?'on-track':'below';
-  var col=showTarget?statusBarColor(status):aggBarColor();
-  var bord=showTarget?statusBorderColor(status):aggBarEdge();
+  var showStatus=est&&showTarget;
+  var col=showStatus?statusBarColor(status):aggBarColor();
+  var bord=showStatus?statusBorderColor(status):aggBarEdge();
 
-  var head=showTarget?(statusMark(status)+'<div class="cm-name">Months of Growth</div>'):'<div class="cm-name">Months of Growth</div>';
+  var head=showStatus?(statusMark(status)+'<div class="cm-name">Months of Growth</div>'):'<div class="cm-name">Months of Growth</div>';
   var h='<div class="cm"><div class="cm-head">'+head+'</div>';
   h+='<div class="cm-bar-wrap"><div class="cm-bar">';
-  if(pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
+  if(est&&pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
   h+='<div class="cm-fill" style="left:0%;width:'+cp+'%;background:'+col+'"></div>';
   if(showTarget)h+='<div class="cm-target" style="left:'+tp+'%"></div>';
-  var pills=pickVisiblePills([
-    {key:'trending',pct:pp,label:trending+' mo.',full:'Estimated growth: '+trending+' months of growth'},
-    {key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of growth'}
-  ]);
+  var pillSpecs=[{key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of growth'}];
+  if(est)pillSpecs.unshift({key:'trending',pct:pp,label:trending+' mo.',full:'Estimated growth: '+trending+' months of growth'});
+  var pills=pickVisiblePills(pillSpecs);
   pills.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>'});
   h+='</div>';
   if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Benchmark: '+MT+' months (full year of growth)">'+ICON_FLAG+MT+' mo.</div>';
   h+='</div>';
-  h+='<div class="cm-stats"><span class="cm-stat">estimated <b>'+trending+' months</b> of growth by year-end</span></div>';
+  var monthsStat=est?('estimated <b>'+trending+' months</b> of growth by year-end'):('<b>'+months+' months</b> of growth so far');
+  h+='<div class="cm-stats"><span class="cm-stat">'+monthsStat+'</span></div>';
   h+='</div>';
   return h;
 }
 
 function trendFor(value){return Math.max(1,Math.round(value*0.05))}
 
-function projCard(label,value){
+function projCard(label,value,subtitle){
   var t=trendFor(value);
-  return '<div class="mc"><div class="mc-l">'+label+'</div><div class="mc-v">'+value+'</div><div class="mc-s">by year-end</div><div class="mc-trend">'+ICON_TRENDING_UP+'<span class="pos">+'+t+'</span> since last week</div></div>';
+  return '<div class="mc"><div class="mc-l">'+label+'</div><div class="mc-v">'+value+'</div><div class="mc-s">'+subtitle+'</div><div class="mc-trend">'+ICON_TRENDING_UP+'<span class="pos">+'+t+'</span> since last week</div></div>';
 }
 
 function metricCards(scope){
-  var projMonths=Math.round(avgMopFor(scope)*MT/MO);
   var w=metricAgg(scope,'wcpm');var f=metricAgg(scope,'hfw');
   var h='<div class="metrics-row">';
-  h+=projCard('Current Months of Growth Estimate',projMonths);
-  h+=projCard('Current Oral Reading Fluency Estimate',w?w.projected:0);
-  h+=projCard('Current High-Frequency Words Estimate',f?f.projected:0);
+  if(ESTIMATES_AVAILABLE){
+    // Year-end estimate from data to date.
+    var projMonths=Math.round(avgMopFor(scope)*MT/MO);
+    h+=projCard('Current Months of Growth Estimate',projMonths,'by year-end');
+    h+=projCard('Current Oral Reading Fluency Estimate',w?w.projected:0,'by year-end');
+    h+=projCard('Current High-Frequency Words Estimate',f?f.projected:0,'by year-end');
+  }else{
+    // No estimate yet: fall back to current values to date.
+    h+=projCard('Current Months of Growth',avgMopFor(scope),'to date');
+    h+=projCard('Current Oral Reading Fluency',w?w.current:0,'to date');
+    h+=projCard('Current High-Frequency Words',f?f.current:0,'to date');
+  }
   h+='</div>';
   return h;
 }
@@ -1225,15 +1247,21 @@ function metricCards(scope){
 // full=true (grade student table): on-track/below status + EOY target + trending stripe.
 // full=false (district/school aggregate): growth-only — no status, no target.
 function chartLegend(full){
+  var est=ESTIMATES_AVAILABLE;
   var h='<div class="legend" aria-label="Chart legend">';
   if(full){
-    h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> On track</div>'
-      +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below benchmark</div>'
-      +'<div class="legend-item" style="margin-left:8px">'+ICON_FLAG+' EOY benchmark</div>'
-      +'<div class="legend-item"><div class="ls"></div> Estimated growth</div>';
+    // School/grade: status (on-track/below) only when an estimate drives it.
+    if(est){
+      h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> On track</div>'
+        +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below benchmark</div>';
+    }else{
+      h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> Growth so far</div>';
+    }
+    h+='<div class="legend-item" style="margin-left:8px">'+ICON_FLAG+' EOY benchmark</div>';
+    if(est)h+='<div class="legend-item"><div class="ls"></div> Estimated growth</div>';
   }else{
-    h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> Growth so far</div>'
-      +'<div class="legend-item"><div class="ls"></div> Estimated growth</div>';
+    h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> Growth so far</div>';
+    if(est)h+='<div class="legend-item"><div class="ls"></div> Estimated growth</div>';
   }
   h+='</div>';
   return h;
@@ -1431,6 +1459,7 @@ function renderGrade(si,gk){
 
 function renderRows(si,gk){
   var mk=st.gm[si][gk];var m=GM[gk].metrics[mk];var hasTarget=m.t!==null;
+  var est=ESTIMATES_AVAILABLE;
   var data=SCHOOLS[si].students[gk].map(function(s){return gsd(s,gk,mk)}).filter(Boolean);
   // "Not yet at this level": on the ORF table only, students whose BOY ORF
   // baselines below the screener-readiness floor (Kindergarten Skills).
@@ -1466,21 +1495,26 @@ function renderRows(si,gk){
     var cPct=Math.min(100,Math.round(d.current/m.mx*100));
     var pPct=hasTarget?Math.min(100,Math.round(d.projected/m.mx*100)):0;
     var gSign=d.growth>=0?'+':'';var gCl=d.growth>=0?'pos':'neg';
-    var bCol=statusBarColor(d.cs);
+    // Without an estimate: no projected slash, fill stays green (growth color).
+    var bCol=est?statusBarColor(d.cs):aggBarColor();
     rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
     rows+='<td class="bv">'+d.boy+'</td>';
     rows+='<td class="cv">'+d.current+'</td>';
     rows+='<td><div class="bb">';
-    if(hasTarget&&pPct>cPct)rows+='<div class="bp" style="left:'+cPct+'%;width:'+(pPct-cPct)+'%"><div class="bp-i" style="background:'+slBg(bCol)+'"></div></div>';
+    if(est&&hasTarget&&pPct>cPct)rows+='<div class="bp" style="left:'+cPct+'%;width:'+(pPct-cPct)+'%"><div class="bp-i" style="background:'+slBg(bCol)+'"></div></div>';
     rows+='<div class="bf" style="left:'+bPct+'%;width:'+Math.max(0,cPct-bPct)+'%;background:'+bCol+'"></div>';
     rows+='<div class="bs" style="left:'+bPct+'%;border-color:'+bCol+'"></div>';
     if(hasTarget)rows+='<div class="bl" style="left:'+tPct+'%"></div>';
     rows+='</div></td>';
     rows+='<td style="text-align:right"><span class="gv '+gCl+'">'+gSign+d.growth+'</span></td>';
     if(hasTarget){
-      var psCl=d.ps==='on-track'?'on-track':'below';
-      var psIcon=d.ps==='on-track'?ICON_CHECK:ICON_WARN;
-      rows+='<td style="text-align:right"><span class="pc '+psCl+'"><span class="pc-status">'+psIcon+'</span>'+d.projected+'</span></td>';
+      if(est){
+        var psCl=d.ps==='on-track'?'on-track':'below';
+        var psIcon=d.ps==='on-track'?ICON_CHECK:ICON_WARN;
+        rows+='<td style="text-align:right"><span class="pc '+psCl+'"><span class="pc-status">'+psIcon+'</span>'+d.projected+'</span></td>';
+      }else{
+        rows+='<td style="text-align:right;color:var(--text-tertiary)">&mdash;</td>';
+      }
     }
     rows+='</tr>';
   });

@@ -89,6 +89,8 @@ Currently configured for December (month 4 of a 10-month school year): `MO=4, MT
 
 If a metric has a cap, the projection is clamped to that cap. In the UI this projected value is labeled "estimated growth" (never "projected" or "predicted") to signal an estimate rather than a guarantee.
 
+**Estimate availability / graceful degradation.** Production year-end estimates likely won't exist until mid-year, so the charts must render without them. A global `ESTIMATES_AVAILABLE` flag (default `true`) gates every estimate-derived element; flip it to `false` to preview the no-estimate state. When estimates are absent: the projected-growth slash, the estimated-growth pill, the on-track/below status (colors + icons), the "% estimated to meet benchmark" stat, and the student-table Estimated-growth value all drop out; the months chart stat reads "N months of growth so far"; and the three summary cards fall back to current values ("Current [metric]", subtitle "to date"). The growth fill stays the on-track green (we are still showing growth, just no status), and the benchmark tick/pill stays (a fixed grade-level standard, known regardless of estimates).
+
 ### Status determination
 
 Binary, and applied at the **school and student levels** (the District aggregate charts show growth only and carry no targets or status — see Aggregate metric charts). No intermediate/approaching state. Status drives both color **and** a non-color icon (check or warning), so the cue does not rely on color alone (WCAG 1.4.1).
