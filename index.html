@@ -256,6 +256,11 @@ body {
   border-bottom: 1px solid var(--border-brand);
   padding: 10px 32px;
   font-size: 13px; color: var(--text-body);
+  /* Pinned above the page-header band so the toggle stays reachable on
+     every view, no matter how far the user has scrolled. */
+  position: sticky;
+  top: 0;
+  z-index: 60;
 }
 .demo-banner-text { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .demo-banner-text svg { width: 16px; height: 16px; color: var(--text-brand); flex-shrink: 0; }
@@ -296,7 +301,7 @@ body {
    so no separate border-bottom here. */
 .page-header-sticky {
   position: sticky;
-  top: 0;
+  top: var(--demo-banner-h, 51px);
   z-index: 50;
   background: var(--bg-page);
   /* Break out to the full width of .content, regardless of its padding. */
@@ -588,7 +593,7 @@ body {
    and pin directly under the page-header-sticky band as the user scrolls. */
 .grade-toolbar {
   position: sticky;
-  top: var(--page-header-h, 150px);
+  top: calc(var(--demo-banner-h, 51px) + var(--page-header-h, 150px));
   z-index: 40;
   background: var(--bg-page);
   padding: 16px 0;
@@ -658,7 +663,7 @@ table {
    overlap at scroll=0 (no double-header). */
 .sticky-thead {
   position: sticky;
-  top: calc(var(--page-header-h, 150px) + var(--toolbar-h, 90px));
+  top: calc(var(--demo-banner-h, 51px) + var(--page-header-h, 150px) + var(--toolbar-h, 90px));
   z-index: 30;
   overflow: hidden;
   border-radius: var(--r-md) var(--r-md) 0 0;
@@ -1642,6 +1647,10 @@ window.toggleEstimates=function(){
 function applyStickyOffsets(){
   requestAnimationFrame(function(){
     var root=document.documentElement;
+    // Demo banner is sticky above the page header; measure it so the lower
+    // sticky bands stack beneath it (it wraps taller on narrow viewports).
+    var bn=document.querySelector('.demo-banner');
+    root.style.setProperty('--demo-banner-h',(bn?bn.offsetHeight:0)+'px');
     var hdr=document.querySelector('.page-header-sticky');
     var hdrH=hdr?hdr.offsetHeight:150;
     root.style.setProperty('--page-header-h',hdrH+'px');
