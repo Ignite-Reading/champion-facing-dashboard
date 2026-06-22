@@ -523,6 +523,7 @@ body {
   white-space: nowrap; line-height: 1.2;
   color: var(--text-secondary);
 }
+.cm-target-pill svg { width: 11px; height: 11px; vertical-align: -1px; margin-right: 3px; }
 .cm-stats {
   text-align: center; font-size: 12px;
   color: var(--text-secondary);
@@ -1009,13 +1010,15 @@ var ICON_TRENDING_UP = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" view
 // Neutral dash for the "not yet at this level" row — signals "no score yet"
 // without the judgment a growth/status glyph would carry.
 var ICON_DASH = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>';
+// Heroicons flag (solid) — marks the EOY benchmark on the chart pill and legend.
+var ICON_FLAG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.75 2a.75.75 0 0 0-.75.75v10.5a.75.75 0 0 0 1.5 0v-2.624l.33-.083A6.044 6.044 0 0 1 8 11c1.29.645 2.77.807 4.17.457l1.48-.37a.462.462 0 0 0 .35-.448V3.56a.438.438 0 0 0-.544-.425l-1.287.322C10.77 3.808 9.291 3.646 8 3a6.045 6.045 0 0 0-4.17-.457l-.34.085A.75.75 0 0 0 2.75 2Z" /></svg>';
 
 function statusMark(status){
   // Non-color status cue — small icon next to the metric title.
   // Pairs with bar color to satisfy WCAG 1.4.1 (Use of Color).
   var cls = status === 'on-track' ? 'ok' : 'bad';
   var icon = status === 'on-track' ? ICON_CHECK : ICON_WARN;
-  var label = status === 'on-track' ? 'On track' : 'Below target';
+  var label = status === 'on-track' ? 'On track' : 'Below benchmark';
   return '<span class="cm-name-mark '+cls+'" role="img" aria-label="'+label+'" title="'+label+'">'+icon+'</span>';
 }
 
@@ -1145,11 +1148,11 @@ function renderMetricChart(stats,title,showTarget){
     h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>';
   });
   h+='</div>';
-  if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+stats.target+'">'+stats.target+'</div>';
+  if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Benchmark: '+stats.target+'">'+ICON_FLAG+stats.target+'</div>';
   h+='</div>';
   var gSign=stats.growth>=0?'+':'';
   h+='<div class="cm-stats"><span class="cm-stat"><b>'+gSign+stats.growth+'</b> average growth</span>';
-  if(showTarget)h+='<span class="cm-stat"><b>'+stats.projPct+'%</b> trending to meet target</span>';
+  if(showTarget)h+='<span class="cm-stat"><b>'+stats.projPct+'%</b> trending to meet benchmark</span>';
   h+='</div>';
   h+='</div>';
   return h;
@@ -1179,7 +1182,7 @@ function renderMonthsChart(months,showTarget){
   ]);
   pills.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>'});
   h+='</div>';
-  if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Target: '+MT+' months (full year of growth)">'+MT+' mo.</div>';
+  if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Benchmark: '+MT+' months (full year of growth)">'+ICON_FLAG+MT+' mo.</div>';
   h+='</div>';
   h+='<div class="cm-stats"><span class="cm-stat">trending to <b>'+trending+' months</b> of growth by year-end</span></div>';
   h+='</div>';
@@ -1213,8 +1216,8 @@ function chartLegend(full){
   var h='<div class="legend" aria-label="Chart legend">';
   if(full){
     h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> On track</div>'
-      +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below target</div>'
-      +'<div class="legend-item" style="margin-left:8px"><div class="ll" style="background:var(--text-primary)"></div> EOY target</div>'
+      +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below benchmark</div>'
+      +'<div class="legend-item" style="margin-left:8px">'+ICON_FLAG+' EOY benchmark</div>'
       +'<div class="legend-item"><div class="ls"></div> Trending-to growth</div>';
   }else{
     h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> Growth so far</div>'
@@ -1389,9 +1392,9 @@ function renderGrade(si,gk){
   // Both have the same width constraints (width: 100%; min-width: 1000px) and column
   // widths, so their cells align column-for-column.
   // Rebalance: name & bar do the most work; numeric columns trim to fit content.
-  var cN=hasTarget?'20%':'22%',cT=hasTarget?'13%':'15%',cS='6%',cCu='7%',cCh=hasTarget?'22%':'37%',cG='7%',cP='13%',cD='12%';
+  var cN=hasTarget?'20%':'22%',cT=hasTarget?'12%':'15%',cS='6%',cCu='7%',cCh=hasTarget?'19%':'37%',cG='7%',cP='15%',cD='14%';
   var theadInner='<tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cCu+';text-align:right" data-sort="current">Current <span class="sa">&#9650;</span></th><th style="width:'+cCh+'" aria-label="Progress"></th><th style="width:'+cG+';text-align:right" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
-  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Trending to EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+';text-align:right" data-sort="delta">vs. Target <span class="sa">&#9650;</span></th>';
+  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Trending to EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+';text-align:right" data-sort="delta">vs. Benchmark <span class="sa">&#9650;</span></th>';
   theadInner+='</tr>';
 
   // Sticky fake-header — pinned to viewport, overlaps real thead at scroll=0.

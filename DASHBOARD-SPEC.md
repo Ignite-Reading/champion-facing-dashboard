@@ -102,6 +102,8 @@ At the student level, status applies consistently to the inline bar fill, the tr
 
 Note: purple now carries two meanings — the brand/primary color (buttons, callout, active toggle, pills) and the below-target status. They live in different contexts so they don't collide, but it is a deliberate overload.
 
+UI copy: the EOY target is labeled **"benchmark"** everywhere it surfaces to the user — "EOY benchmark" (legend), "Below benchmark" (status), "vs. Benchmark" (table column), "trending to meet benchmark" (chart stat), and the benchmark pill below each chart. "target" remains only as the internal code term (`stats.target`, the `t` field, `cm-target*` classes). The benchmark is marked with a small Heroicons flag icon on the chart pill and in the legend.
+
 Baselined-higher students are treated as on track for that metric (they began at or above target).
 
 ## Visual design
@@ -180,7 +182,7 @@ The months-of-progress figure uses a proxy formula until a real definition lands
 
 The treatment differs by level (one shared renderer with a `showTarget` flag):
 - **District cards: growth only** — no target tick, no target pill, no on-track/below status. A single brand-green growth fill, the start/current/trending-to pills, and a "+N average growth" stat. (At the district level a single average mixes grade-specific targets, so a target line there would be misleading.)
-- **School cards: full target treatment** — restores the EOY target tick, the target pill below the bar, on-track/below status coloring (green / purple) with a status icon next to the chart title, and a second stat line "X% trending to meet target." The months chart adds a full-year tick at 10 with a "10 mo." target pill.
+- **School cards: full benchmark treatment** — restores the EOY benchmark tick, the benchmark pill below the bar (a flag icon + the value), on-track/below status coloring (green / purple) with a status icon next to the chart title, and a second stat line "X% trending to meet benchmark." The months chart adds a full-year tick at 10 with a "⚑ 10 mo." benchmark pill.
 
 Both levels share a common base shape: a 14px primary-text label above a 20px tall bar with rounded ends, a solid fill from average BOY to average current, a diagonal slash pattern from average current to average trending-to, and pill labels overlaying the bar at the BOY / Current / Trending-to positions. (The start is marked by its pill and the rounded left edge of the fill; there is no separate start dot on the aggregate charts — the student-table bars keep their start dot since they have no pills.) The journey pills are small white chips with primary-text numbers and a 1px stroke. When they would collide horizontally, the lower-priority pill is hidden in this order: Start > Trending-to > Current. On district cards the fill and pill stroke use the neutral brand-green growth color (`--ok-bar`) and the label has no status icon; on school cards they use the status color (green on-track / purple below) and the label gains a status icon, per the level treatment above.
 
@@ -188,9 +190,9 @@ The Months of Growth chart uses the same bar shape on a 0-to-15-months scale (ro
 
 The solid fill on every chart (aggregate and student-level) is rounded only on its left end; the right end is square so it reads as continuing into the trending-to slash rather than terminating as a self-contained pill.
 
-Aggregate math: ORF and HFW averages use raw scores across all students in scope regardless of grade. Baselined-higher students contribute their BOY/current as their values (no growth). The target tick (school cards only) uses the average target across the students in scope; "% trending to meet target" is the share of in-scope students whose trending-to value meets their grade target (baselined-higher students count as meeting it). District cards compute no status and no "% to meet target."
+Aggregate math: ORF and HFW averages use raw scores across all students in scope regardless of grade. Baselined-higher students contribute their BOY/current as their values (no growth). The benchmark tick (school cards only) uses the average target across the students in scope; "% trending to meet benchmark" is the share of in-scope students whose trending-to value meets their grade target (baselined-higher students count as meeting it). District cards compute no status and no "% to meet benchmark."
 
-**Chart legend** — context-aware. The full legend (school aggregate view and grade student-table view, both of which show targets) shows On track (green) / Below target (purple) squares, a line for EOY target, and the slash swatch for Trending-to growth. The reduced legend (district aggregate view, growth-only) shows only "Growth so far" (green swatch) and "Trending to year-end" (slash swatch).
+**Chart legend** — context-aware. The full legend (school aggregate view and grade student-table view, both of which show benchmarks) shows On track (green) / Below benchmark (purple) squares, a flag icon for EOY benchmark, and the slash swatch for Trending-to growth. The reduced legend (district aggregate view, growth-only) shows only "Growth so far" (green swatch) and "Trending to year-end" (slash swatch).
 
 **Student table** (grade view only) — fixed table layout inside a rounded, shadowed `.table-wrap`. Uppercase 12px secondary header cells on the sunken-color background; hover state on body rows (`--bg-hover`). Minimum width 1000px (the wrap scrolls horizontally on narrower viewports). Columns:
 - Student (name, weight 500, truncates with ellipsis)
@@ -200,7 +202,7 @@ Aggregate math: ORF and HFW averages use raw scores across all students in scope
 - Chart (inline bar chart from BOY to current, no header label, not sortable)
 - Growth (signed, green positive / purple negative)
 - Trending to EOY (status icon + value — non-color status cue)
-- vs. Target (signed delta)
+- vs. Benchmark (signed delta)
 
 All four metrics now have targets, so the table is always 8 columns.
 
@@ -221,7 +223,7 @@ All four metrics now have targets, so the table is always 8 columns.
 
 ### Icons
 
-Inline SVG icons (Heroicons-style outline strokes). No icon font / CDN. Used for: back arrow, chevron-right (card affordance), check (on-track status, baselined-higher row), warning triangle (below-target status), dash (not-yet-at-this-level row), arrow-down-on-square (sign out), trending-up (callout and trend lines), and the sidebar nav glyphs.
+Inline SVG icons (Heroicons-style outline strokes, plus the solid Heroicons flag). No icon font / CDN. Used for: back arrow, chevron-right (card affordance), check (on-track status, baselined-higher row), warning triangle (below-benchmark status), dash (not-yet-at-this-level row), flag (EOY benchmark marker on chart pills and the legend), arrow-down-on-square (sign out), trending-up (callout and trend lines), and the sidebar nav glyphs.
 
 ## Accessibility
 
