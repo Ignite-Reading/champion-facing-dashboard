@@ -932,6 +932,10 @@ function genStudents(r,n,gk){
     var nm;do{nm=FN[Math.floor(r()*FN.length)]+' '+LN[Math.floor(r()*LN.length)];}while(used[nm]);
     used[nm]=true;
     var s={name:nm,teacher:teachers[i%nTeachers]};
+    // Instructional hours in the Ignite program (placeholder, pending real
+    // data). Derived deterministically from index so it doesn't consume the
+    // shared RNG and shift the seeded scores. Cycles 12-18, averaging ~15.
+    s.hours=12+((i*3)%7);
     mks.forEach(function(mk){
       var met=GM[gk].metrics[mk];
       if(met.t===null){s[mk]={b:0,c:Math.floor(r()*(met.mx+1))};return}
@@ -1068,6 +1072,14 @@ function avgMopFor(scope){
     });
   });
   return mops.length?Math.round(mops.reduce(function(a,b){return a+b},0)/mops.length):0;
+}
+
+// Average instructional hours per student in scope (placeholder data — see
+// genStudents). Used by the Growth Highlight statement.
+function avgHoursFor(scope){
+  if(!scope.length)return 0;
+  var sum=scope.reduce(function(a,it){return a+(it.student.hours||0)},0);
+  return Math.round(sum/scope.length);
 }
 
 function calloutHtml(personalHtml){
@@ -1278,7 +1290,8 @@ function renderDistrict(){
 
   var dScope=[];SCHOOLS.forEach(function(sch){GKS.forEach(function(gk){sch.students[gk].forEach(function(s){dScope.push({student:s,gk:gk})})})});
   var dCs=calloutFor(dScope,['wcpm','hfw']);
-  var dPers=dScope.length?'Your students have made <b>'+dCs.avgMonths+' months</b> of progress so far this year, improving oral reading fluency by <b>'+dCs.growths.wcpm+' more</b> words and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
+  var dHours=avgHoursFor(dScope);
+  var dPers=dScope.length?'Your students have made <b>'+dCs.avgMonths+' months</b> of progress in <b>'+dHours+' instructional hours</b>, improving oral reading fluency by <b>'+dCs.growths.wcpm+' more</b> words and mastering <b>'+dCs.growths.hfw+' more</b> high-frequency words on average.':'';
   h+=calloutHtml(dPers);
   h+=metricCards(dScope);
   h+=chartLegend(false);
@@ -1333,7 +1346,8 @@ function renderSchool(si){
 
   var schScope=[];GKS.forEach(function(gk){sch.students[gk].forEach(function(s){schScope.push({student:s,gk:gk})})});
   var schCs=calloutFor(schScope,['wcpm','hfw']);
-  var schPers=schScope.length?'Your students have made <b>'+schCs.avgMonths+' months</b> of progress so far this year, improving oral reading fluency by <b>'+schCs.growths.wcpm+' more</b> words and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
+  var schHours=avgHoursFor(schScope);
+  var schPers=schScope.length?'Your students have made <b>'+schCs.avgMonths+' months</b> of progress in <b>'+schHours+' instructional hours</b>, improving oral reading fluency by <b>'+schCs.growths.wcpm+' more</b> words and mastering <b>'+schCs.growths.hfw+' more</b> high-frequency words on average.':'';
   h+=calloutHtml(schPers);
   h+=metricCards(schScope);
   h+=chartLegend(true);
@@ -1369,9 +1383,10 @@ function renderGrade(si,gk){
 
   var gScope=sch.students[gk].map(function(s){return{student:s,gk:gk}});
   var gCs=calloutFor(gScope,['wcpm','hfw']);
+  var gHours=avgHoursFor(gScope);
   var gPers;
   if(gScope.length===0){gPers='';}
-  else{var gLabel=gk==='k'?'kindergartners':(gk==='g1'?'1st graders':'2nd graders');gPers='Your '+gLabel+' have made <b>'+gCs.avgMonths+' months</b> of progress so far this year, improving oral reading fluency by <b>'+gCs.growths.wcpm+' more</b> words and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
+  else{var gLabel=gk==='k'?'kindergartners':(gk==='g1'?'1st graders':'2nd graders');gPers='Your '+gLabel+' have made <b>'+gCs.avgMonths+' months</b> of progress in <b>'+gHours+' instructional hours</b>, improving oral reading fluency by <b>'+gCs.growths.wcpm+' more</b> words and mastering <b>'+gCs.growths.hfw+' more</b> high-frequency words on average.';}
   h+=calloutHtml(gPers);
   h+=metricCards(gScope);
 
@@ -1392,9 +1407,12 @@ function renderGrade(si,gk){
   // Both have the same width constraints (width: 100%; min-width: 1000px) and column
   // widths, so their cells align column-for-column.
   // Rebalance: name & bar do the most work; numeric columns trim to fit content.
-  var cN=hasTarget?'20%':'22%',cT=hasTarget?'12%':'15%',cS='6%',cCu='7%',cCh=hasTarget?'19%':'37%',cG='7%',cP='15%',cD='14%';
+  // vs. Benchmark column removed; widths rebalanced across the remaining 7
+  // columns. (All metrics have benchmarks, so the Trending to EOY column
+  // always renders.)
+  var cN='20%',cT='13%',cS='7%',cCu='8%',cCh='28%',cG='8%',cP='16%';
   var theadInner='<tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cCu+';text-align:right" data-sort="current">Current <span class="sa">&#9650;</span></th><th style="width:'+cCh+'" aria-label="Progress"></th><th style="width:'+cG+';text-align:right" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
-  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Trending to EOY <span class="sa">&#9650;</span></th><th style="width:'+cD+';text-align:right" data-sort="delta">vs. Benchmark <span class="sa">&#9650;</span></th>';
+  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Trending to EOY <span class="sa">&#9650;</span></th>';
   theadInner+='</tr>';
 
   // Sticky fake-header — pinned to viewport, overlaps real thead at scroll=0.
@@ -1433,16 +1451,14 @@ function renderRows(si,gk){
   var rows='';
   data.forEach(function(d){
     if(d.notYet){
-      var nyCols=hasTarget?6:4;
       rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
-      rows+='<td colspan="'+nyCols+'" class="notyet-cell"><span class="notyet-icon">'+ICON_DASH+' Student not yet at this level</span></td>';
+      rows+='<td colspan="5" class="notyet-cell"><span class="notyet-icon">'+ICON_DASH+' Student not yet at this level</span></td>';
       rows+='</tr>';
       return;
     }
     if(d.mastered){
-      var nCols=hasTarget?6:4;
       rows+='<tr><td class="sn">'+d.name+'</td><td class="tn">'+d.teacher+'</td>';
-      rows+='<td colspan="'+nCols+'" class="mastered-cell"><span class="mast-icon">'+ICON_CHECK+' Baselined higher at initial assessment</span></td>';
+      rows+='<td colspan="5" class="mastered-cell"><span class="mast-icon">'+ICON_CHECK+' Baselined higher at initial assessment</span></td>';
       rows+='</tr>';
       return;
     }
@@ -1464,9 +1480,7 @@ function renderRows(si,gk){
     if(hasTarget){
       var psCl=d.ps==='on-track'?'on-track':'below';
       var psIcon=d.ps==='on-track'?ICON_CHECK:ICON_WARN;
-      var dSign=d.delta>=0?'+':'';var dCl=d.delta>=0?'pos':'neg';
       rows+='<td style="text-align:right"><span class="pc '+psCl+'"><span class="pc-status">'+psIcon+'</span>'+d.projected+'</span></td>';
-      rows+='<td class="dc '+dCl+'" style="text-align:right">'+dSign+d.delta+'</td>';
     }
     rows+='</tr>';
   });

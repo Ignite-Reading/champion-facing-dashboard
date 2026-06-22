@@ -102,7 +102,7 @@ At the student level, status applies consistently to the inline bar fill, the tr
 
 Note: purple now carries two meanings — the brand/primary color (buttons, callout, active toggle, pills) and the below-target status. They live in different contexts so they don't collide, but it is a deliberate overload.
 
-UI copy: the EOY target is labeled **"benchmark"** everywhere it surfaces to the user — "EOY benchmark" (legend), "Below benchmark" (status), "vs. Benchmark" (table column), "trending to meet benchmark" (chart stat), and the benchmark pill below each chart. "target" remains only as the internal code term (`stats.target`, the `t` field, `cm-target*` classes). The benchmark is marked with a small Heroicons flag icon on the chart pill and in the legend.
+UI copy: the EOY target is labeled **"benchmark"** everywhere it surfaces to the user — "EOY benchmark" (legend), "Below benchmark" (status), "trending to meet benchmark" (chart stat), and the benchmark pill below each chart. "target" remains only as the internal code term (`stats.target`, the `t` field, `cm-target*` classes). The benchmark is marked with a small Heroicons flag icon on the chart pill and in the legend.
 
 Baselined-higher students are treated as on track for that metric (they began at or above target).
 
@@ -168,7 +168,7 @@ A small JS helper (`applyStickyOffsets`) measures the heights of the first two b
 - School: total students, per-grade student counts
 - Grade: student count with grade plural label
 
-**Growth statement callout** — hero treatment, sits between the sub-counts bar and the metric cards on every view. White card with a 2px brand-purple border and a subtle brand shadow. A 44px brand-purple circle on the left holds a trending-up icon. The body has an uppercase brand eyebrow ("GROWTH HIGHLIGHT") above a 20px primary-text sentence. Key growth figures (months of progress, per-metric deltas) sit inline as brand-purple `<b>` pills with a 1.5px brand border and small shadow. The personalized sentence adapts to the scope:
+**Growth statement callout** — hero treatment, sits between the sub-counts bar and the metric cards on every view. White card with a 2px brand-purple border and a subtle brand shadow. A 44px brand-purple circle on the left holds a trending-up icon. The body has an uppercase brand eyebrow ("GROWTH HIGHLIGHT") above a 20px primary-text sentence. Key growth figures (months of progress, instructional hours, per-metric deltas) sit inline as brand-purple `<b>` pills with a 1.5px brand border and small shadow. The sentence frames progress against effort: "made N months of progress in N instructional hours" (N instructional hours = the average instructional hours per student in scope, a deterministic placeholder pending real program-hours data). The personalized sentence adapts to the scope:
 - District and school views: aggregated across all students (K, 1st, 2nd), citing oral reading fluency and high-frequency words. The ORF clause reads "improving oral reading fluency by N more words"; the HFW clause "mastering N more high-frequency words."
 - Grade view: scoped to that grade, same ORF/HFW phrasing across all grades including kindergarten.
 
@@ -202,9 +202,8 @@ Aggregate math: ORF and HFW averages use raw scores across all students in scope
 - Chart (inline bar chart from BOY to current, no header label, not sortable)
 - Growth (signed, green positive / purple negative)
 - Trending to EOY (status icon + value — non-color status cue)
-- vs. Benchmark (signed delta)
 
-All four metrics now have targets, so the table is always 8 columns.
+The table is 7 columns. (The earlier "vs. Benchmark" signed-delta column was removed; the Trending-to-EOY status icon already conveys whether a student is on track or below.)
 
 **Inline bar charts** (in student table) — 14px tall, 7px radius. Layers:
 1. Track: sunken-color background spanning the full bar
