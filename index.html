@@ -1145,7 +1145,7 @@ function renderMetricChart(stats,title,showTarget){
   var bord=showTarget?statusBorderColor(status):aggBarEdge();
   var pillSpecs=[
     {key:'start',pct:bp,label:stats.boy,full:'Start: '+stats.boy},
-    {key:'trending',pct:pp,label:stats.projected,full:'Trending to: '+stats.projected},
+    {key:'trending',pct:pp,label:stats.projected,full:'Estimated growth: '+stats.projected},
     {key:'current',pct:cp,label:stats.current,full:'Current: '+stats.current}
   ];
   var visible=pickVisiblePills(pillSpecs);
@@ -1164,7 +1164,7 @@ function renderMetricChart(stats,title,showTarget){
   h+='</div>';
   var gSign=stats.growth>=0?'+':'';
   h+='<div class="cm-stats"><span class="cm-stat"><b>'+gSign+stats.growth+'</b> average growth</span>';
-  if(showTarget)h+='<span class="cm-stat"><b>'+stats.projPct+'%</b> trending to meet benchmark</span>';
+  if(showTarget)h+='<span class="cm-stat"><b>'+stats.projPct+'%</b> estimated to meet benchmark</span>';
   h+='</div>';
   h+='</div>';
   return h;
@@ -1189,14 +1189,14 @@ function renderMonthsChart(months,showTarget){
   h+='<div class="cm-fill" style="left:0%;width:'+cp+'%;background:'+col+'"></div>';
   if(showTarget)h+='<div class="cm-target" style="left:'+tp+'%"></div>';
   var pills=pickVisiblePills([
-    {key:'trending',pct:pp,label:trending+' mo.',full:'Trending to: '+trending+' months of growth'},
+    {key:'trending',pct:pp,label:trending+' mo.',full:'Estimated growth: '+trending+' months of growth'},
     {key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of growth'}
   ]);
   pills.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>'});
   h+='</div>';
   if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Benchmark: '+MT+' months (full year of growth)">'+ICON_FLAG+MT+' mo.</div>';
   h+='</div>';
-  h+='<div class="cm-stats"><span class="cm-stat">trending to <b>'+trending+' months</b> of growth by year-end</span></div>';
+  h+='<div class="cm-stats"><span class="cm-stat">estimated <b>'+trending+' months</b> of growth by year-end</span></div>';
   h+='</div>';
   return h;
 }
@@ -1230,10 +1230,10 @@ function chartLegend(full){
     h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> On track</div>'
       +'<div class="legend-item"><div class="ld" style="background:var(--bad-bar)"></div> Below benchmark</div>'
       +'<div class="legend-item" style="margin-left:8px">'+ICON_FLAG+' EOY benchmark</div>'
-      +'<div class="legend-item"><div class="ls"></div> Trending-to growth</div>';
+      +'<div class="legend-item"><div class="ls"></div> Estimated growth</div>';
   }else{
     h+='<div class="legend-item"><div class="ld" style="background:var(--ok-bar)"></div> Growth so far</div>'
-      +'<div class="legend-item"><div class="ls"></div> Trending to year-end</div>';
+      +'<div class="legend-item"><div class="ls"></div> Estimated growth</div>';
   }
   h+='</div>';
   return h;
@@ -1412,7 +1412,7 @@ function renderGrade(si,gk){
   // always renders.)
   var cN='20%',cT='13%',cS='7%',cCu='8%',cCh='28%',cG='8%',cP='16%';
   var theadInner='<tr><th style="width:'+cN+'" data-sort="name">Student <span class="sa">&#9650;</span></th><th style="width:'+cT+'" data-sort="teacher">Teacher <span class="sa">&#9650;</span></th><th style="width:'+cS+';text-align:right" data-sort="boy">Start <span class="sa">&#9650;</span></th><th style="width:'+cCu+';text-align:right" data-sort="current">Current <span class="sa">&#9650;</span></th><th style="width:'+cCh+'" aria-label="Progress"></th><th style="width:'+cG+';text-align:right" data-sort="growth">Growth <span class="sa">&#9650;</span></th>';
-  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Trending to EOY <span class="sa">&#9650;</span></th>';
+  if(hasTarget)theadInner+='<th style="width:'+cP+';text-align:right" data-sort="projected">Estimated growth <span class="sa">&#9650;</span></th>';
   theadInner+='</tr>';
 
   // Sticky fake-header — pinned to viewport, overlaps real thead at scroll=0.

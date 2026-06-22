@@ -87,22 +87,22 @@ projected = BOY + ((current - BOY) / monthsElapsed) * totalMonths
 
 Currently configured for December (month 4 of a 10-month school year): `MO=4, MT=10`.
 
-If a metric has a cap, the projection is clamped to that cap. In the UI this projected value is always labeled "trending to" (never "projected" or "predicted") to signal a trajectory rather than a guarantee.
+If a metric has a cap, the projection is clamped to that cap. In the UI this projected value is labeled "estimated growth" (never "projected" or "predicted") to signal an estimate rather than a guarantee.
 
 ### Status determination
 
 Binary, and applied at the **school and student levels** (the District aggregate charts show growth only and carry no targets or status — see Aggregate metric charts). No intermediate/approaching state. Status drives both color **and** a non-color icon (check or warning), so the cue does not rely on color alone (WCAG 1.4.1).
 
-- **On track** (bar `--ok-bar` #28d7a3, edge/text `--ok-bar-edge`/`--ok-fg` #188161): trending-to EOY ≥ target. Check icon.
-- **Below target** (bar `--bad-bar` #573988 brand purple, edge `--bad-bar-edge` #27004B, text/icon `--bad-fg` #573988): trending-to EOY < target. Warning-triangle icon. (Below target is intentionally the brand purple, not red — there is no red in the dashboard.)
+- **On track** (bar `--ok-bar` #28d7a3, edge/text `--ok-bar-edge`/`--ok-fg` #188161): estimated-growth EOY ≥ target. Check icon.
+- **Below target** (bar `--bad-bar` #573988 brand purple, edge `--bad-bar-edge` #27004B, text/icon `--bad-fg` #573988): estimated-growth EOY < target. Warning-triangle icon. (Below target is intentionally the brand purple, not red — there is no red in the dashboard.)
 
 Dark mode tokens shift the below-target text/edge to lighter purple (`--bad-fg` #C5B0E0, `--bad-bar-edge` #B49DD3) for AA contrast on the dark surface; bar fills stay the same hue.
 
-At the student level, status applies consistently to the inline bar fill, the trending-to-growth slash pattern, the negative growth/delta text, and the Trending-to-EOY status icon.
+At the student level, status applies consistently to the inline bar fill, the estimated-growth slash pattern, the negative growth/delta text, and the Estimated growth status icon.
 
 Note: purple now carries two meanings — the brand/primary color (buttons, callout, active toggle, pills) and the below-target status. They live in different contexts so they don't collide, but it is a deliberate overload.
 
-UI copy: the EOY target is labeled **"benchmark"** everywhere it surfaces to the user — "EOY benchmark" (legend), "Below benchmark" (status), "trending to meet benchmark" (chart stat), and the benchmark pill below each chart. "target" remains only as the internal code term (`stats.target`, the `t` field, `cm-target*` classes). The benchmark is marked with a small Heroicons flag icon on the chart pill and in the legend.
+UI copy: the EOY target is labeled **"benchmark"** everywhere it surfaces to the user — "EOY benchmark" (legend), "Below benchmark" (status), "estimated to meet benchmark" (chart stat), and the benchmark pill below each chart. The forward projection is labeled **"Estimated growth"** (column header, legend, pills); "trending"/"projected" are no longer used in UI copy. "target" remains only as the internal code term (`stats.target`, the `t` field, `cm-target*` classes). The benchmark is marked with a small Heroicons flag icon on the chart pill and in the legend.
 
 Baselined-higher students are treated as on track for that metric (they began at or above target).
 
@@ -181,18 +181,18 @@ The months-of-progress figure uses a proxy formula until a real definition lands
 **Aggregate metric charts** (on district school cards and school grade cards) — three charts per card in a responsive grid (3-across desktop, 2-across at ≤1024px, 1-across at ≤640px). Each card shows the same three charts in the same order: Months of Growth, Oral Reading Fluency, High-Frequency Words.
 
 The treatment differs by level (one shared renderer with a `showTarget` flag):
-- **District cards: growth only** — no target tick, no target pill, no on-track/below status. A single brand-green growth fill, the start/current/trending-to pills, and a "+N average growth" stat. (At the district level a single average mixes grade-specific targets, so a target line there would be misleading.)
-- **School cards: full benchmark treatment** — restores the EOY benchmark tick, the benchmark pill below the bar (a flag icon + the value), on-track/below status coloring (green / purple) with a status icon next to the chart title, and a second stat line "X% trending to meet benchmark." The months chart adds a full-year tick at 10 with a "⚑ 10 mo." benchmark pill.
+- **District cards: growth only** — no target tick, no target pill, no on-track/below status. A single brand-green growth fill, the start/current/estimated-growth pills, and a "+N average growth" stat. (At the district level a single average mixes grade-specific targets, so a target line there would be misleading.)
+- **School cards: full benchmark treatment** — restores the EOY benchmark tick, the benchmark pill below the bar (a flag icon + the value), on-track/below status coloring (green / purple) with a status icon next to the chart title, and a second stat line "X% estimated to meet benchmark." The months chart adds a full-year tick at 10 with a "⚑ 10 mo." benchmark pill.
 
-Both levels share a common base shape: a 14px primary-text label above a 20px tall bar with rounded ends, a solid fill from average BOY to average current, a diagonal slash pattern from average current to average trending-to, and pill labels overlaying the bar at the BOY / Current / Trending-to positions. (The start is marked by its pill and the rounded left edge of the fill; there is no separate start dot on the aggregate charts — the student-table bars keep their start dot since they have no pills.) The journey pills are small white chips with primary-text numbers and a 1px stroke. When they would collide horizontally, the lower-priority pill is hidden in this order: Start > Trending-to > Current. On district cards the fill and pill stroke use the neutral brand-green growth color (`--ok-bar`) and the label has no status icon; on school cards they use the status color (green on-track / purple below) and the label gains a status icon, per the level treatment above.
+Both levels share a common base shape: a 14px primary-text label above a 20px tall bar with rounded ends, a solid fill from average BOY to average current, a diagonal slash pattern from average current to average estimated-growth, and pill labels overlaying the bar at the BOY / Current / Estimated-growth positions. (The start is marked by its pill and the rounded left edge of the fill; there is no separate start dot on the aggregate charts — the student-table bars keep their start dot since they have no pills.) The journey pills are small white chips with primary-text numbers and a 1px stroke. When they would collide horizontally, the lower-priority pill is hidden in this order: Start > Estimated-growth > Current. On district cards the fill and pill stroke use the neutral brand-green growth color (`--ok-bar`) and the label has no status icon; on school cards they use the status color (green on-track / purple below) and the label gains a status icon, per the level treatment above.
 
-The Months of Growth chart uses the same bar shape on a 0-to-15-months scale (room to show growth beyond a full school year). It fills from 0 to the average months achieved, then shows a diagonal trending-to slash from current to the trending-to year-end months (current rate extrapolated: months ÷ months-elapsed × total-months). Pills mark current and trending-to. On district cards it is growth-only (brand-green, no target tick). On school cards it gains a full-year target tick at 10 months with a "10 mo." pill and status coloring (green if trending to ≥ a full year, purple if behind). Reads "trending to N months of growth by year-end" below.
+The Months of Growth chart uses the same bar shape on a 0-to-15-months scale (room to show growth beyond a full school year). It fills from 0 to the average months achieved, then shows a diagonal estimated-growth slash from current to the estimated year-end months (current rate extrapolated: months ÷ months-elapsed × total-months). Pills mark current and estimated-growth. On district cards it is growth-only (brand-green, no target tick). On school cards it gains a full-year target tick at 10 months with a "10 mo." pill and status coloring (green if estimated ≥ a full year, purple if behind). Reads "estimated N months of growth by year-end" below.
 
-The solid fill on every chart (aggregate and student-level) is rounded only on its left end; the right end is square so it reads as continuing into the trending-to slash rather than terminating as a self-contained pill.
+The solid fill on every chart (aggregate and student-level) is rounded only on its left end; the right end is square so it reads as continuing into the estimated-growth slash rather than terminating as a self-contained pill.
 
-Aggregate math: ORF and HFW averages use raw scores across all students in scope regardless of grade. Baselined-higher students contribute their BOY/current as their values (no growth). The benchmark tick (school cards only) uses the average target across the students in scope; "% trending to meet benchmark" is the share of in-scope students whose trending-to value meets their grade target (baselined-higher students count as meeting it). District cards compute no status and no "% to meet benchmark."
+Aggregate math: ORF and HFW averages use raw scores across all students in scope regardless of grade. Baselined-higher students contribute their BOY/current as their values (no growth). The benchmark tick (school cards only) uses the average target across the students in scope; "% estimated to meet benchmark" is the share of in-scope students whose estimated-growth value meets their grade target (baselined-higher students count as meeting it). District cards compute no status and no "% to meet benchmark."
 
-**Chart legend** — context-aware. The full legend (school aggregate view and grade student-table view, both of which show benchmarks) shows On track (green) / Below benchmark (purple) squares, a flag icon for EOY benchmark, and the slash swatch for Trending-to growth. The reduced legend (district aggregate view, growth-only) shows only "Growth so far" (green swatch) and "Trending to year-end" (slash swatch).
+**Chart legend** — context-aware. The full legend (school aggregate view and grade student-table view, both of which show benchmarks) shows On track (green) / Below benchmark (purple) squares, a flag icon for EOY benchmark, and the slash swatch for Estimated growth. The reduced legend (district aggregate view, growth-only) shows only "Growth so far" (green swatch) and "Estimated growth" (slash swatch).
 
 **Student table** (grade view only) — fixed table layout inside a rounded, shadowed `.table-wrap`. Uppercase 12px secondary header cells on the sunken-color background; hover state on body rows (`--bg-hover`). Minimum width 1000px (the wrap scrolls horizontally on narrower viewports). Columns:
 - Student (name, weight 500, truncates with ellipsis)
@@ -201,15 +201,15 @@ Aggregate math: ORF and HFW averages use raw scores across all students in scope
 - Current (current score, primary color, right-aligned, sortable)
 - Chart (inline bar chart from BOY to current, no header label, not sortable)
 - Growth (signed, green positive / purple negative)
-- Trending to EOY (status icon + value — non-color status cue)
+- Estimated growth (status icon + value — non-color status cue)
 
-The table is 7 columns. (The earlier "vs. Benchmark" signed-delta column was removed; the Trending-to-EOY status icon already conveys whether a student is on track or below.)
+The table is 7 columns. (The earlier "vs. Benchmark" signed-delta column was removed; the Estimated growth status icon already conveys whether a student is on track or below.)
 
 **Inline bar charts** (in student table) — 14px tall, 7px radius. Layers:
 1. Track: sunken-color background spanning the full bar
 2. Start marker: 12px white circle with a 2px status-colored stroke at the BOY (beginning-of-year) position, left edge aligned with the start of the colored fill
 3. Current progress: solid fill in the status color, extending from BOY to current position (rounded left edge, square right edge)
-4. Trending-to growth zone: diagonal slash pattern (45deg repeating gradient, 2px stripes at 6px intervals) in the status color, extending from current to trending-to position
+4. Estimated-growth zone: diagonal slash pattern (45deg repeating gradient, 2px stripes at 6px intervals) in the status color, extending from current to estimated-growth position
 5. Target marker: 2px wide, 20px tall tick mark at the target percentage, primary-text color
 
 **Metric toggle buttons** (grade view) — horizontal row of pill buttons inside the sticky toolbar band. Inactive state is a neutral chip (border, body text); active state fills brand-purple with white text. All four metrics are available on every grade view, always in the same order: Oral reading fluency, High-frequency words, Nonsense word fluency, Letter naming fluency. ORF is selected by default for every grade. Below 768px viewport, the buttons collapse into a `<select>` dropdown with the same order. `role="tablist"`; `aria-selected` reflects the active state.
@@ -231,7 +231,7 @@ Inline SVG icons (Heroicons-style outline strokes, plus the solid Heroicons flag
 - **Reduced motion**: transitions collapse to near-zero when `prefers-reduced-motion: reduce` is set.
 - **Semantic structure**: each view uses `<h1>` for the title; `<nav>`, `<main>`, `<aside>`, `<footer>` landmarks.
 - **ARIA**: `role="region"` on the callout with `aria-label`; `role="tablist"` and `aria-selected` on the metric toggle; `aria-current="page"` on the active sidebar item; `aria-hidden="true"` on decorative SVGs.
-- **Non-color status cues**: wherever status appears, color is paired with a check or warning icon (the school chart titles and the student table's Trending-to-EOY value) so meaning never relies on color alone (WCAG 1.4.1). District charts carry no status, so no status icon.
+- **Non-color status cues**: wherever status appears, color is paired with a check or warning icon (the school chart titles and the student table's Estimated growth value) so meaning never relies on color alone (WCAG 1.4.1). District charts carry no status, so no status icon.
 - **Keyboard**: school/grade cards are `role="button"` with `tabindex="0"` and Enter/Space handlers. Table columns are sortable via the header buttons.
 - **Color contrast**: text and status colors selected to pass WCAG 2.1 AA on both light and dark sunken surfaces. The `--text-tertiary` token is reserved for decorative use (icons/dividers) and intentionally fails AA — never used for text.
 
@@ -260,11 +260,11 @@ The student table always lives inside a horizontal-scroll wrapper (1000px min-wi
 ## Key design decisions
 
 1. **Binary status.** On track or below target, shown on the school aggregate charts and the student table. No yellow / approaching state. The District aggregate charts show growth without targets or status.
-2. **Status based on trending-to EOY, not current score.** A student could have a low current score but strong growth trajectory and still be "on track." This rewards growth.
-3. **"Trending to," never "projected."** Forward-looking numbers are labeled "trending to" so users read them as a trajectory, not a guarantee.
-4. **Targets at school and student levels, not district.** School aggregate charts and the student table show the EOY target, the target tick/pill, and status. District charts are growth-only (start → current → trending-to), because a single district average mixes grade-specific targets and a target line there would mislead.
+2. **Status based on estimated-growth EOY, not current score.** A student could have a low current score but strong growth trajectory and still be "on track." This rewards growth.
+3. **"Estimated growth," never "projected."** Forward-looking numbers are labeled "estimated growth" so users read them as an estimate, not a guarantee.
+4. **Targets at school and student levels, not district.** School aggregate charts and the student table show the EOY target, the target tick/pill, and status. District charts are growth-only (start → current → estimated-growth), because a single district average mixes grade-specific targets and a target line there would mislead.
 5. **Purple, not red, for below target.** The below-target status uses the brand purple #573988; there is no red anywhere in the dashboard. (Tradeoff: purple now means both "brand" and "below target," but in separate contexts.)
-6. **Status is never carried by color alone.** A check or warning icon accompanies every status indicator (school chart titles, the student table's Trending-to-EOY column) to satisfy WCAG 1.4.1.
+6. **Status is never carried by color alone.** A check or warning icon accompanies every status indicator (school chart titles, the student table's Estimated growth column) to satisfy WCAG 1.4.1.
 7. **Three aggregate charts per card.** District and school cards show months of growth, oral reading fluency, and HFW side by side (3-across desktop, 2-across tablet, 1-across mobile), each aggregating real scores across all students in scope.
 8. **Oral Reading Fluency (ORF) is the metric of truth.** Every grade exposes the same four metrics with ORF as the default and the headline; NWF and LNF are supplementary and mostly resolve to baselined-higher for upper grades.
 9. **Two row states for non-working students.** "Baselined higher at initial assessment" (began at/above target) and, on the ORF table only, "Student not yet at this level" (baselined below the ORF screener-readiness floor). Both collapse to a single labeled cell.
