@@ -151,15 +151,18 @@ On desktop the sidebar is sticky at `top: 0` for the full viewport height. Below
 
 ## Sticky behaviors
 
-Three stacked sticky bands keep navigational and context controls visible while reading long content.
+Stacked sticky bands keep navigational and context controls visible while reading long content.
 
-1. **Page-header band** (`.page-header-sticky`) — pins to the top of the viewport. Contains the eyebrow, back link (where applicable), title, subtitle, sub-counts, and the open-seats CTA. It breaks out to the full content width via negative horizontal margins so its background fills the column edge to edge.
+0. **Prototype preview banner** (`.demo-banner`) — pins to the very top of the viewport, above every other band, on all views. Prototype-only control; see Components.
+1. **Page-header band** (`.page-header-sticky`) — pins directly under the preview banner. Contains the eyebrow, back link (where applicable), title, subtitle, sub-counts, and the open-seats CTA. It breaks out to the full content width via negative horizontal margins so its background fills the column edge to edge.
 2. **Grade-view toolbar** (`.grade-toolbar`, grade view only) — pins directly under the page-header band. Contains the metric toggle (pill buttons or dropdown) and the chart legend.
 3. **Student-table header** (`.sticky-thead`, grade view only) — pins directly under the toolbar band. Because the table lives inside a horizontal-scroll container (which creates its own sticky context), the real `<thead>` cannot pin to the viewport. The fix is a hand-built duplicate header rendered as a sibling of `.table-wrap`, overlapped onto the real `<thead>` at `scroll=0` via a negative `margin-bottom` sized to the real header's height. Horizontal scrolling of the table translates the sticky header's inner table by the same `scrollLeft` so columns stay aligned.
 
-A small JS helper (`applyStickyOffsets`) measures the heights of the first two bands and exposes them as CSS variables (`--page-header-h`, `--toolbar-h`) so the lower bands stack without hardcoded pixel math. It re-runs on window resize.
+A small JS helper (`applyStickyOffsets`) measures the banner and the first two bands and exposes them as CSS variables (`--demo-banner-h`, `--page-header-h`, `--toolbar-h`) so the lower bands stack without hardcoded pixel math. It re-runs on window resize. (The helper defers to `requestAnimationFrame`; the CSS carries sensible fallbacks — 51px / 150px / 90px — so layout is correct even before the measurement fires.)
 
 ## Components
+
+**Prototype preview banner** (`.demo-banner`) — a prototype-only control pinned across the top of the main column (above the sidebar's right edge), present and sticky on every view. An info-tinted band with a flask icon and the copy "Prototype preview. Year-end estimates won't be available until mid-year. Toggle to compare the dashboard with and without estimates," plus a switch on the right (`role="switch"`, label "Estimates on/off"). The switch flips the `ESTIMATES_AVAILABLE` flag (see Estimate availability) and re-renders the current view so reviewers can compare the with- and without-estimate states. It lives outside `#app`, so it survives drill-down navigation. Remove this banner (and the flag's UI) before any production build.
 
 **View title** — 24px, weight 600, primary text. The page-header band shows: an uppercase eyebrow (`Reports · Student Progress`), the back link (school + grade views), the title in an `<h1>`, a small secondary-text subtitle (e.g., "School-level reading progress" or "K–2 reading progress"), and on the right the open-seats block.
 
@@ -289,6 +292,7 @@ These are potential next steps, not commitments. Discuss with Chris before imple
 
 - Convert from static HTML prototype to a production framework (React, etc.)
 - Connect to real student data via API; the months-of-growth formula and data lineage are owned by the data team
+- Replace `ESTIMATES_AVAILABLE` (and the prototype preview banner) with a real per-record "estimate present" check, and source real instructional-hours data
 - Replace the placeholder week-over-week trend with a real time-series source
 - Wire the "Fill Seats" CTA to its destination
 - Wire the sidebar nav items (Home, Session Attendance, Roster, Help Center) to their respective destinations once they exist
@@ -296,3 +300,17 @@ These are potential next steps, not commitments. Discuss with Chris before imple
 - Add time period selector (view progress at different points in the year)
 - Add export / print functionality
 - Full accessibility audit (keyboard nav across the table, screen-reader walkthrough, contrast spot-check across all theme states)
+
+## Changelog
+
+### June 22, 2026
+- Renamed "target" to "benchmark" throughout the UI (legend, status label, chart stat, the benchmark pill), and added a flag icon marking the benchmark on the chart pills and in the legend.
+- Removed the "vs. Benchmark" column from the student table; the Estimated growth status icon already conveys on-track / below.
+- Reframed the Growth Highlight statement: "made N months of progress in N instructional hours" (was "so far this year"); N is the average instructional hours per student in scope (placeholder data).
+- Retitled the three summary cards to "Current [metric] Estimate" (value unchanged — the year-end estimate from data to date).
+- Renamed "Trending to" / "Trending-to" to "Estimated growth" everywhere it surfaces (column header, legend, pills; stats read "estimated to meet benchmark" and "estimated N months of growth by year-end").
+- Added graceful degradation when year-end estimates are unavailable (the `ESTIMATES_AVAILABLE` flag): bar charts drop the estimated-growth slash, the estimated pill, on-track/below status, and the "% estimated" stat; growth stays green; the benchmark marker stays; summary cards fall back to current values; the Estimated growth column shows a dash.
+- Added a prototype preview banner with a toggle to flip estimates on/off for side-by-side comparison, pinned so it stays visible on every view.
+
+### Earlier
+- See git history for the full prior sequence: the IRDL brand restyle (v7 app shell, sidebar, sticky bands, dark mode, accessibility), the WCPM→ORF and PA→NWF renames, the aggregate-chart redesign (months of growth / ORF / HFW), the mastery and not-yet-at-this-level row treatments, and the move to the Ignite Reading org repo (`champion-facing-dashboard`).
