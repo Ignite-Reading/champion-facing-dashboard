@@ -935,7 +935,7 @@ tbody tr:hover td.sn {
  * DATA ENGINE — ported verbatim from Chris's prototype (proven to work)
  * Restyled colors are read from CSS custom properties via getComputedStyle.
  * ========================================================================= */
-var MO = 4, MT = 10;
+var MO = 7, MT = 10;  // ~March: month 7 of a 10-month year. Year-end estimates extrapolate current pace by MT/MO (~1.4x), keeping them close to current values.
 
 // Estimated-growth (year-end projection) availability. Production estimates
 // likely won't exist until mid-year, so the charts must degrade gracefully
@@ -996,8 +996,9 @@ function genStudents(r,n,gk){
     var s={name:nm,teacher:teachers[i%nTeachers]};
     // Instructional hours in the Ignite program (placeholder, pending real
     // data). Derived deterministically from index so it doesn't consume the
-    // shared RNG and shift the seeded scores. Cycles 12-18, averaging ~15.
-    s.hours=12+((i*3)%7);
+    // shared RNG and shift the seeded scores. ~March cadence (15 min/day,
+    // 5 days/week, ~23 weeks): cycles 25-35, averaging ~30.
+    s.hours=25+((i*3)%11);
     mks.forEach(function(mk){
       var met=GM[gk].metrics[mk];
       if(met.t===null){s[mk]={b:0,c:Math.floor(r()*(met.mx+1))};return}
