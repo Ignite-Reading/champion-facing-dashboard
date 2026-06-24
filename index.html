@@ -1235,7 +1235,7 @@ function renderMetricChart(stats,title,showTarget){
 }
 
 function renderMonthsChart(months,showTarget){
-  // Months of growth. School (showTarget) shows the full-year benchmark tick.
+  // Months of progress. School (showTarget) shows the full-year benchmark tick.
   // The estimated year-end slash/pill/stat appear only when estimates exist.
   var est=ESTIMATES_AVAILABLE;
   var trending=Math.round(months*MT/MO);
@@ -1248,21 +1248,21 @@ function renderMonthsChart(months,showTarget){
   var col=showStatus?statusBarColor(status):aggBarColor();
   var bord=showStatus?statusBorderColor(status):aggBarEdge();
 
-  var head=showStatus?(statusMark(status)+'<div class="cm-name">Months of Growth</div>'):'<div class="cm-name">Months of Growth</div>';
+  var head=showStatus?(statusMark(status)+'<div class="cm-name">Months of Progress</div>'):'<div class="cm-name">Months of Progress</div>';
   var h='<div class="cm"><div class="cm-head">'+head+'</div>';
   h+='<div class="cm-bar-wrap"><div class="cm-bar">';
   if(est&&pp>cp)h+='<div class="cm-proj" style="left:'+cp+'%;width:'+(pp-cp)+'%"><div class="cm-proj-i" style="background:'+slBg(col)+'"></div></div>';
   h+='<div class="cm-fill" style="left:0%;width:'+cp+'%;background:'+col+'"></div>';
   if(showTarget)h+='<div class="cm-target" style="left:'+tp+'%"></div>';
-  var pillSpecs=[{key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of growth'}];
-  if(est)pillSpecs.unshift({key:'trending',pct:pp,label:trending+' mo.',full:'Estimated growth: '+trending+' months of growth'});
+  var pillSpecs=[{key:'current',pct:cp,label:months+' mo.',full:'Current: '+months+' months of progress'}];
+  if(est)pillSpecs.unshift({key:'trending',pct:pp,label:trending+' mo.',full:'Estimated growth: '+trending+' months of progress'});
   var pills=pickVisiblePills(pillSpecs);
   pills.forEach(function(p){h+='<div class="cm-pill" style="left:'+p.pct+'%;border-color:'+bord+'" title="'+p.full+'">'+p.label+'</div>'});
   h+='</div>';
-  if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Benchmark: '+MT+' months (full year of growth)">'+ICON_FLAG+MT+' mo.</div>';
+  if(showTarget)h+='<div class="cm-target-pill" style="left:'+tp+'%" title="Benchmark: '+MT+' months (full year of progress)">'+ICON_FLAG+MT+' mo.</div>';
   h+='</div>';
-  var monthsStat=est?('estimated <b>'+trending+' months</b> of growth by year-end'):('<b>'+months+' months</b> of growth so far');
-  h+='<div class="cm-stats"><span class="cm-stat">'+monthsStat+'</span></div>';
+  // Growth to date, in the same "+N average growth" form as the ORF/HFW charts.
+  h+='<div class="cm-stats"><span class="cm-stat"><b>+'+months+'</b> average growth</span></div>';
   h+='</div>';
   return h;
 }
@@ -1280,12 +1280,12 @@ function metricCards(scope){
   if(ESTIMATES_AVAILABLE){
     // Year-end estimate from data to date.
     var projMonths=Math.round(avgMopFor(scope)*MT/MO);
-    h+=projCard('Current Months of Growth Estimate',projMonths,'by year-end');
+    h+=projCard('Current Months of Progress Estimate',projMonths,'by year-end');
     h+=projCard('Current Oral Reading Fluency Estimate',w?w.projected:0,'by year-end');
     h+=projCard('Current High-Frequency Words Estimate',f?f.projected:0,'by year-end');
   }else{
     // No estimate yet: fall back to current values to date.
-    h+=projCard('Current Months of Growth',avgMopFor(scope),'to date');
+    h+=projCard('Current Months of Progress',avgMopFor(scope),'to date');
     h+=projCard('Current Oral Reading Fluency',w?w.current:0,'to date');
     h+=projCard('Current High-Frequency Words',f?f.current:0,'to date');
   }
